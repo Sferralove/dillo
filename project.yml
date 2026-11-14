@@ -1,0 +1,80 @@
+name: Dillo
+options:
+  developmentLanguage: it
+  bundleIdPrefix: com.angelosferra
+  deploymentTarget:
+    macOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: 889687QKV6
+packages:
+  FluidAudio:
+    url: https://github.com/FluidInference/FluidAudio
+    from: 0.7.0
+targets:
+  Dillo:
+    type: application
+    platform: macOS
+    sources: [Dillo]
+    dependencies:
+      - package: FluidAudio
+    info:
+      path: Dillo/Info.plist
+      properties:
+        CFBundleDisplayName: Dillo
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSHumanReadableCopyright: "© 2026 Angelo Sferra. Tutti i diritti riservati."
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        CFBundleName: Dillo
+        CFBundleDevelopmentRegion: it
+        CFBundleLocalizations: [it]
+        LSApplicationCategoryType: public.app-category.productivity
+        NSSpeechRecognitionUsageDescription: "Dillo usa il riconoscimento vocale di macOS per trascrivere la tua voce sul Mac."
+        NSMicrophoneUsageDescription: "Dillo usa il microfono per trascrivere la tua voce mentre tieni premuto il tasto di dettatura."
+    entitlements:
+      path: Dillo/Dillo.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.device.audio-input: true
+        com.apple.security.network.client: true
+    settings:
+      base:
+        PRODUCT_NAME: Dillo
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        PRODUCT_BUNDLE_IDENTIFIER: com.angelosferra.dillo
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGN_STYLE: Manual
+        DEAD_CODE_STRIPPING: YES
+      configs:
+        Debug:
+          OTHER_CODE_SIGN_FLAGS: "--timestamp=none"
+  DilloTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [DilloTests]
+    dependencies:
+      - target: Dillo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.angelosferra.dillo.tests
+        CODE_SIGN_IDENTITY: "Apple Development"
+        CODE_SIGN_STYLE: Manual
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Dillo:
+    build:
+      targets:
+        Dillo: all
+    test:
+      targets: [DilloTests]
+      gatherCoverageData: true
+    run:
+      config: Debug
+    archive:
+      config: Release
