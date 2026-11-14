@@ -30,15 +30,19 @@ enum AudioDevices {
 
     static func device(uid: String) -> AudioInputDevice? { inputs().first { $0.uid == uid } }
 
-    static var defaultInputName: String? {
+    /// Microfono predefinito di sistema in questo momento (cambia, ad esempio, quando colleghi le AirPods).
+    static var defaultInputID: AudioDeviceID? {
         var addr = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultInputDevice,
                                               mScope: kAudioObjectPropertyScopeGlobal,
                                               mElement: kAudioObjectPropertyElementMain)
         var id = AudioDeviceID(0)
         var size = UInt32(MemoryLayout<AudioDeviceID>.size)
-        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &id) == noErr else { return nil }
-        return string(id, kAudioObjectPropertyName)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &id) == noErr,
+              id != kAudioObjectUnknown else { return nil }
+        return id
     }
+
+    static var defaultInputName: String? { defaultInputID.flatMap { string($0, kAudioObjectPropertyName) } }
 
     private static func inputChannels(_ id: AudioDeviceID) -> Int {
         var addr = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreamConfiguration,
