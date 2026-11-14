@@ -44,6 +44,13 @@ final class DictionaryEntry {
         self.createdAt = createdAt
     }
 
+    static func normalizedVariants(_ text: String) -> String {
+        var seen = Set<String>()
+        return text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && seen.insert($0.lowercased()).inserted }
+            .joined(separator: ", ")
+    }
+
     var variantList: [String] {
         variants.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
     }

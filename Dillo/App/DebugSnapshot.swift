@@ -13,6 +13,29 @@ enum DebugSnapshot {
         return URL(fileURLWithPath: CommandLine.arguments[i + 1])
     }
 
+    private static func argument(_ name: String, fallback: CGFloat) -> CGFloat {
+        guard let i = CommandLine.arguments.firstIndex(of: name), i + 1 < CommandLine.arguments.count,
+              let value = Double(CommandLine.arguments[i + 1]), value.isFinite, value > 0 else { return fallback }
+        return CGFloat(value)
+    }
+
+    /// `-trafficLights`: stampa la posizione dei pulsanti della finestra (per allineare la UI della barra del titolo).
+    @MainActor static func logTrafficLights() {
+        guard CommandLine.arguments.contains("-trafficLights") else { return }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(3))
+            for w in NSApp.windows where w.isVisible && w.frame.width > 600 {
+                for b in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
+                    if let btn = w.standardWindowButton(b), let sv = btn.superview {
+                        let r = btn.convert(btn.bounds, to: nil)
+                        print("\(b.rawValue): x=\(r.minX) w=\(r.width) yFromTop=\(w.frame.height - r.maxY) h=\(r.height) sv=\(sv.frame)")
+                    }
+                }
+            }
+            NSApp.terminate(nil)
+        }
+    }
+
     @MainActor static func seed(_ context: ModelContext) {
         let cal = Calendar.current
         let samples = [
@@ -48,14 +71,16 @@ enum DebugSnapshot {
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(2))
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            let width = argument("-snapshot-width", fallback: 1180)
+            let height = argument("-snapshot-height", fallback: 780)
             for page in Page.allCases {
                 let root = MainView(initialPage: page)
                     .environment(controller)
                     .modelContainer(container)
                     .preferredColorScheme(.dark)
                     .tint(Theme.coral)
-                    .frame(width: 1180, height: 780)
-                let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: 1180, height: 780),
+                    .frame(width: width, height: height)
+                let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: width, height: height),
                                       styleMask: [.borderless], backing: .buffered, defer: false)
                 window.appearance = NSAppearance(named: .darkAqua)
                 window.contentView = NSHostingView(rootView: root)

@@ -13,7 +13,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 - Integrazione continua su GitHub Actions: build, test e controllo dei warning su ogni pull request.
 - Firma configurabile tramite `Config/Signing.local.xcconfig`, per compilare con il proprio account Apple.
 
+- Barra laterale espandibile con le etichette delle pagine; si compatta da sola nelle finestre strette.
+- Menu **Vai** con ⌘1, ⌘2, ⌘3 per passare tra Panoramica, Cronologia e Dizionario; ⌃⌘S per la barra laterale.
+- Calendario dell'attività sull'intero anno (gennaio–dicembre), con selettore dell'anno e dettaglio del giorno.
+
 ### Modificato
+- Il pulsante della barra laterale si trova accanto ai pulsanti della finestra, come nelle app di sistema.
+- Panoramica e Dizionario ridisegnati; le varianti del dizionario vengono ripulite da duplicati e voci vuote.
 - Il logo nella barra laterale è disegnato in vettoriale, così è sempre aggiornato e nitido.
 - Gli screenshot dimostrativi non mostrano più il nome dell'utente né gli avvisi sui permessi.
 - La versione di FluidAudio è fissata (0.18.3) per build riproducibili; il progetto Xcode generato non è più versionato.

@@ -92,83 +92,131 @@ struct AppIcon: View {
     }
 }
 
-/// Calendario a celle (stile "contributi") con le parole dettate per giorno.
+/// Heatmap stile GitHub: sette righe e l'intero anno, gennaio–dicembre.
 struct ActivityHeatmap: View {
     let daily: [Date: Int]
-    var weeks = 22
-    var cell: CGFloat = 13
-    var gap: CGFloat = 4
+    @State private var year = Calendar.current.component(.year, from: .now)
     @State private var hovered: Date?
+    @State private var selected: Date?
+    private let gap: CGFloat = 3
+    private let labelWidth: CGFloat = 34
 
-    private var cal: Calendar {
-        var c = Calendar.current
-        c.firstWeekday = 2 // lunedì
-        return c
-    }
-
-    private var columns: [[Date]] {
-        let today = cal.startOfDay(for: .now)
-        let weekStart = cal.dateInterval(of: .weekOfYear, for: today)!.start
-        let first = cal.date(byAdding: .weekOfYear, value: -(weeks - 1), to: weekStart)!
-        return (0..<weeks).map { w in
-            (0..<7).map { d in cal.date(byAdding: .day, value: w * 7 + d, to: first)! }
-        }
-    }
-
-    private var thresholds: [Int] {
-        let values = daily.values.filter { $0 > 0 }.sorted()
-        guard !values.isEmpty else { return [1, 2, 3] }
-        func q(_ p: Double) -> Int { values[min(values.count - 1, Int(Double(values.count) * p))] }
-        return [q(0.25), q(0.5), q(0.75)]
-    }
+    private var currentYear: Int { Calendar.current.component(.year, from: .now) }
+    private var firstYear: Int { min(currentYear, daily.keys.map { Calendar.current.component(.year, from: $0) }.min() ?? currentYear) }
 
     var body: some View {
-        let cols = columns
-        let th = thresholds
-        let today = cal.startOfDay(for: .now)
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 8) {
-                VStack(alignment: .trailing, spacing: gap) {
-                    Color.clear.frame(height: 14)
-                    ForEach(0..<7, id: \.self) { d in
-                        Text(d % 2 == 0 ? weekdayName(d) : "")
-                            .font(.system(size: 9.5)).foregroundStyle(Theme.textTertiary)
-                            .frame(height: cell)
-                    }
+        let model = ActivityYear(year: year)
+        let today = model.calendar.startOfDay(for: .now)
+        let values = daily.filter { model.contains($0.key) && $0.key <= today }.values.filter { $0 > 0 }.sorted()
+        let thresholds = [0.25, 0.5, 0.75].map { q in values.isEmpty ? 1 : values[min(values.count - 1, Int(Double(values.count) * q))] }
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Parole dettate ogni giorno · gennaio–dicembre")
+                    .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                Spacer(minLength: 10)
+                Picker("Anno", selection: $year) {
+                    ForEach(Array((firstYear...currentYear).reversed()), id: \.self) { y in Text(String(y)).tag(y) }
                 }
-                HStack(alignment: .top, spacing: gap) {
-                    ForEach(cols.indices, id: \.self) { w in
-                        VStack(spacing: gap) {
-                            Text(monthLabel(cols, w)).font(.system(size: 9.5)).foregroundStyle(Theme.textTertiary)
-                                .fixedSize().frame(width: cell, height: 14, alignment: .leading)
-                            ForEach(cols[w], id: \.self) { day in
-                                let words = daily[day] ?? 0
-                                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                    .fill(day > today ? Color.clear : color(words, th))
-                                    .overlay(RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                        .strokeBorder(day == today ? Color.white.opacity(0.7) : .clear, lineWidth: 1))
-                                    .frame(width: cell, height: cell)
-                                    .onHover { hovered = $0 ? day : (hovered == day ? nil : hovered) }
-                                    .help("\(day.formatted(.dateTime.day().month(.wide))): \(words) parole")
+                .labelsHidden().fixedSize().accessibilityLabel("Anno del grafico attività")
+            }
+            GeometryReader { geometry in
+                let cell = min(16, max(10, (geometry.size.width - labelWidth - 8 + gap) / CGFloat(model.weeks.count) - gap))
+                ScrollView(.horizontal) {
+                    HStack(alignment: .top, spacing: 8) {
+                        VStack(alignment: .leading, spacing: gap) {
+                            Color.clear.frame(height: 20)
+                            ForEach(0..<7, id: \.self) { index in
+                                Text(model.calendar.shortWeekdaySymbols[(index + 1) % 7].capitalized)
+                                    .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
+                                    .frame(height: cell)
+                            }
+                        }
+                        .frame(width: labelWidth, alignment: .leading)
+                        VStack(alignment: .leading, spacing: gap) {
+                            ZStack(alignment: .topLeading) {
+                                Color.clear
+                                ForEach(model.months, id: \.self) { month in
+                                    Text(month.formatted(.dateTime.month(.abbreviated)).capitalized)
+                                        .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
+                                        .fixedSize()
+                                        .offset(x: CGFloat(model.column(for: month)) * (cell + gap))
+                                }
+                            }
+                            .frame(width: CGFloat(model.weeks.count) * (cell + gap) - gap, height: 20)
+                            HStack(alignment: .top, spacing: gap) {
+                                ForEach(model.weeks.indices, id: \.self) { week in
+                                    VStack(spacing: gap) {
+                                        ForEach(model.weeks[week], id: \.self) { day in
+                                            dayCell(day, model: model, today: today, thresholds: thresholds, cell: cell)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
+                    .padding(.bottom, 6)
+                }
+                .scrollIndicators(.automatic)
+                // Il suggerimento sta in una fascia sotto la griglia, mai sopra le celle,
+                // e compare solo quando l'anno intero non entra davvero nella larghezza disponibile.
+                .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 4) {
+                    if CGFloat(model.weeks.count) * (cell + gap) - gap + labelWidth + 8 > geometry.size.width + 0.5 {
+                        Label("Scorri per vedere gli altri mesi", systemImage: "arrow.left.and.right")
+                            .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
+                            .padding(.leading, labelWidth + 8)
+                            .allowsHitTesting(false)
+                    }
                 }
             }
-            HStack(spacing: 6) {
-                Text("Meno").font(.system(size: 10)).foregroundStyle(Theme.textTertiary)
-                ForEach(0..<5, id: \.self) { i in
-                    RoundedRectangle(cornerRadius: 3).fill(i == 0 ? Color.white.opacity(0.05) : Theme.coralScale[i - 1])
-                        .frame(width: 11, height: 11)
-                }
-                Text("Più").font(.system(size: 10)).foregroundStyle(Theme.textTertiary)
-                Spacer()
-                if let hovered {
-                    Text("\(hovered.formatted(.dateTime.weekday(.wide).day().month(.wide))) · \(daily[hovered] ?? 0) parole")
-                        .font(.system(size: 10.5).monospacedDigit()).foregroundStyle(Theme.textSecondary)
-                }
+            .frame(height: 192)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 16) { legend; Spacer(minLength: 0); detail(model: model, today: today) }
+                VStack(alignment: .leading, spacing: 10) { legend; detail(model: model, today: today) }
             }
         }
+        .onChange(of: year) { hovered = nil; selected = nil }
+    }
+
+    private func dayCell(_ day: Date, model: ActivityYear, today: Date, thresholds: [Int], cell: CGFloat) -> some View {
+        let inYear = model.contains(day)
+        let future = day > today
+        let words = daily[day] ?? 0
+        return Button { selected = day } label: {
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .fill(!inYear ? Color.clear : future ? Color.white.opacity(0.025) : color(words, thresholds))
+                .overlay(RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .strokeBorder(inYear && (day == today || selected == day) ? Color.white.opacity(0.8) : Color.clear, lineWidth: 1))
+                .frame(width: cell, height: cell)
+        }
+        .buttonStyle(.plain)
+        .disabled(!inYear || future)
+        .accessibilityHidden(!inYear)
+        .accessibilityLabel(description(day, today: today))
+        .help(description(day, today: today))
+        .onHover { on in hovered = on && inYear ? day : nil }
+    }
+
+    private var legend: some View {
+        HStack(spacing: 6) {
+            Text("Meno")
+            ForEach(0..<5, id: \.self) { i in
+                RoundedRectangle(cornerRadius: 3).fill(i == 0 ? Color.white.opacity(0.05) : Theme.coralScale[i - 1])
+                    .frame(width: 11, height: 11)
+            }
+            Text("Più parole")
+        }
+        .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
+    }
+
+    private func detail(model: ActivityYear, today: Date) -> some View {
+        Text((hovered ?? selected).map { description($0, today: today) }
+             ?? "Ogni cella è un giorno. I giorni futuri sono attenuati.")
+            .font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+    }
+
+    private func description(_ day: Date, today: Date) -> String {
+        let date = day.formatted(.dateTime.weekday(.wide).day().month(.wide).year())
+        return day > today ? "\(date) · giorno futuro" : "\(date) · \((daily[day] ?? 0).formatted()) parole"
     }
 
     private func color(_ words: Int, _ th: [Int]) -> Color {
@@ -177,18 +225,5 @@ struct ActivityHeatmap: View {
         if words <= th[1] { return Theme.coralScale[1] }
         if words <= th[2] { return Theme.coralScale[2] }
         return Theme.coralScale[3]
-    }
-
-    private func weekdayName(_ index: Int) -> String {
-        let symbols = cal.shortWeekdaySymbols // dom, lun, …
-        return symbols[(index + 1) % 7].capitalized
-    }
-
-    private func monthLabel(_ cols: [[Date]], _ w: Int) -> String {
-        let m = cal.component(.month, from: cols[w][0])
-        if w == 0 || cal.component(.month, from: cols[w - 1][0]) != m {
-            return cols[w][0].formatted(.dateTime.month(.abbreviated)).capitalized
-        }
-        return ""
     }
 }

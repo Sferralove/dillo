@@ -12,111 +12,133 @@ struct OverviewPage: View {
 
     var body: some View {
         let stats = self.stats
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                PageHeader(title: greeting, subtitle: subtitle(stats)) {
-                    TabStrip(selection: $tab)
-                }
-                Group {
-                    switch tab {
-                    case .usage: usage(stats)
-                    case .voice: voice(stats)
+        VStack(spacing: 0) {
+            PageHeader(title: greeting, subtitle: subtitle(stats)) {
+                TabStrip(selection: $tab)
+            }
+            GeometryReader { geometry in
+                ScrollView {
+                    Group {
+                        switch tab {
+                        case .usage: usage(stats, wide: geometry.size.width >= 880)
+                        case .voice: voice(stats)
+                        }
                     }
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 28)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 36)
-                .padding(.bottom, 36)
             }
         }
-        .scrollIndicators(.hidden)
     }
 
     // MARK: Utilizzo
 
-    @ViewBuilder private func usage(_ s: UsageStats) -> some View {
+    private func usage(_ s: UsageStats, wide: Bool) -> some View {
         VStack(spacing: 18) {
-            HStack(alignment: .top, spacing: 18) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 18), count: wide ? 3 : 2), spacing: 18) {
                 StatCard {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        BigNumber(s.totalWords)
+                        Eyebrow("Parole dettate · totale")
+                        Text(milestone(s.totalWords)).font(.system(size: 14, design: .serif))
+                            .foregroundStyle(.white.opacity(0.85))
+                        Text("\(s.totalDictations.formatted()) dettature complessive")
+                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                    }
+                }
+                StatCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        BigNumber(s.minutesSaved)
+                        Eyebrow("Minuti risparmiati · stima")
+                        Text("Rispetto a scrivere a tastiera, a \(Int(UsageStats.typingWPM)) parole al minuto.")
+                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                        Text("Stima sull'intera cronologia, al netto del tempo parlato.")
+                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                    }
+                }
+                StatCard {
+                    VStack(alignment: .leading, spacing: 10) {
                         BigNumber(s.wordsPerMinute)
-                        Eyebrow("Parole al minuto")
+                        Eyebrow("Parole al minuto · media")
                         SpeedGauge(wpm: s.wordsPerMinute)
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 14)
+                            .frame(maxWidth: .infinity).padding(.top, 8)
                     }
                 }
-                StatCard {
-                    VStack(alignment: .leading, spacing: 4) {
-                        BigNumber(s.corrections)
-                        Eyebrow("Correzioni del dizionario")
-                        Divider().overlay(Theme.stroke).padding(.vertical, 14)
-                        MetricRow(label: "Voci nel dizionario", value: dictionary.count)
-                        MetricRow(label: "Minuti risparmiati", value: s.minutesSaved)
-                        MetricRow(label: "Dettature", value: s.totalDictations)
-                    }
-                }
-                StatCard {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(alignment: .top) {
-                            BigNumber(s.totalWords)
-                            Spacer()
-                            if let trend = s.monthTrend { TrendBadge(trend: trend) }
-                        }
-                        Eyebrow("Parole dettate in totale")
-                        Divider().overlay(Theme.stroke).padding(.vertical, 14)
-                        Text(milestone(s.totalWords))
-                            .font(.system(size: 14, design: .serif))
-                            .foregroundStyle(.white.opacity(0.88))
-                            .padding(.bottom, 12)
-                        EngineSplit(engines: s.engines, total: s.totalWords)
-                    }
-                }
-                .frame(minWidth: 320)
+                if !wide { monthCard(s) }
             }
             .fixedSize(horizontal: false, vertical: true)
 
-            HStack(alignment: .top, spacing: 18) {
+            // La heatmap mantiene le celle settimanali stile GitHub, su tutta la larghezza.
+            StatCard {
+                VStack(alignment: .leading, spacing: 18) {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline) {
+                            streakTitle(s)
+                            Spacer(minLength: 16)
+                            Text("Record · \(s.longestStreak) giorni").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            streakTitle(s)
+                            Text("Record · \(s.longestStreak) giorni").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                        }
+                    }
+                    ActivityHeatmap(daily: s.dailyWords)
+                }
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 290), spacing: 18, alignment: .top)], spacing: 18) {
                 StatCard {
                     VStack(alignment: .leading, spacing: 18) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text("Dove detti").font(Typo.display(24))
-                            Spacer()
-                            Eyebrow("App usate · \(s.apps.count)")
-                        }
+                        Text("Dove detti").font(Typo.display(24))
+                        Eyebrow("Intera cronologia · \(s.apps.count) app")
                         if s.apps.isEmpty {
                             EmptyHint("Detta in qualsiasi app con la scorciatoia: qui vedrai dove usi di più Dillo.")
                         } else {
                             ForEach(s.apps.prefix(6)) { app in
-                                HStack(spacing: 12) {
-                                    AppIcon(bundleID: app.bundleID)
-                                    ProportionBar(fraction: Double(app.words) / Double(max(s.totalWords, 1)),
-                                                  color: color(for: app, in: s))
-                                        .frame(maxWidth: 260)
-                                    Text("\(app.words.formatted()) parole · \(app.name)")
-                                        .font(.system(size: 11, weight: .semibold))
-                                        .tracking(0.6)
-                                        .textCase(.uppercase)
-                                        .foregroundStyle(.white.opacity(0.75))
-                                        .lineLimit(1)
-                                    Spacer(minLength: 0)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 8) {
+                                        AppIcon(bundleID: app.bundleID, size: 18)
+                                        Text(app.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                                        Spacer(minLength: 4)
+                                        Text("\(app.words.formatted()) parole").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                                    }
+                                    ProportionBar(fraction: Double(app.words) / Double(max(s.totalWords, 1)), color: color(for: app, in: s))
                                 }
                             }
                         }
                     }
                 }
+                if wide { monthCard(s) }
                 StatCard {
-                    VStack(alignment: .leading, spacing: 18) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(s.currentStreak == 1 ? "1 giorno di fila" : "\(s.currentStreak) giorni di fila")
-                                .font(Typo.display(24))
-                            Spacer()
-                            Eyebrow("Record · \(s.longestStreak) giorni")
-                        }
-                        ActivityHeatmap(daily: s.dailyWords)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Dizionario e motori").font(Typo.display(22))
+                        Eyebrow("Intera cronologia")
+                        MetricRow(label: "Correzioni applicate", value: s.corrections)
+                        MetricRow(label: "Voci nel dizionario", value: dictionary.count)
+                        Divider().overlay(Theme.stroke)
+                        EngineSplit(engines: s.engines, total: s.totalWords)
                     }
                 }
-                .frame(minWidth: 470)
             }
             .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func streakTitle(_ s: UsageStats) -> some View {
+        Text(s.currentStreak == 1 ? "1 giorno di fila" : "\(s.currentStreak) giorni di fila").font(Typo.display(24))
+    }
+
+    private func monthCard(_ s: UsageStats) -> some View {
+        StatCard {
+            VStack(alignment: .leading, spacing: 10) {
+                BigNumber(s.wordsThisMonth)
+                Eyebrow("Parole · \(Date.now.formatted(.dateTime.month(.wide).year()))")
+                if let trend = s.monthTrend { TrendBadge(trend: trend) }
+                else { Text("Nessun confronto disponibile con il mese scorso.").font(.system(size: 12)).foregroundStyle(Theme.textSecondary) }
+                Text("Mese in corso rispetto all'intero mese precedente.")
+                    .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+            }
         }
     }
 
@@ -135,7 +157,7 @@ struct OverviewPage: View {
             VoiceTile(value: "\(Int(s.totalSeconds / 60))", label: "Minuti parlati",
                       note: "Tempo totale di dettatura registrato.")
             VoiceTile(value: "\(s.wordsThisMonth.formatted())", label: "Parole questo mese",
-                      note: s.monthTrend.map { String(format: "%+.0f%% rispetto al mese scorso", $0 * 100) } ?? "Primo mese di utilizzo.")
+                      note: s.monthTrend.map { String(format: "%+.0f%% rispetto al mese scorso", $0 * 100) } ?? "Nessun confronto con il mese scorso.")
         }
     }
 
@@ -152,7 +174,7 @@ struct OverviewPage: View {
     private func subtitle(_ s: UsageStats) -> String {
         s.totalDictations == 0
             ? "Inizia a dettare: le tue statistiche prenderanno forma qui."
-            : "\(s.totalDictations) dettature · \(s.minutesSaved) minuti risparmiati rispetto alla tastiera"
+            : "La tua attività di dettatura, dall’inizio a oggi."
     }
 
     private func milestone(_ words: Int) -> String {
@@ -215,26 +237,19 @@ private struct EngineSplit: View {
     let engines: [(name: String, words: Int)]
     let total: Int
     var body: some View {
-        GeometryReader { geo in
-            HStack(spacing: 4) {
-                if engines.isEmpty {
-                    RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.06))
-                } else {
-                    ForEach(Array(engines.enumerated()), id: \.offset) { i, e in
-                        let frac = Double(e.words) / Double(max(total, 1))
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(i == 0 ? Theme.coral : Theme.coral.opacity(0.4))
-                            .frame(width: max(70, (geo.size.width - 4) * frac))
-                            .overlay(alignment: .leading) {
-                                Label(e.name, systemImage: e.name.contains("Apple") ? "apple.logo" : "bird")
-                                    .font(.system(size: 11, weight: .medium)).padding(.leading, 9)
-                                    .lineLimit(1)
-                            }
-                    }
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(Array(engines.enumerated()), id: \.offset) { i, engine in
+                HStack(spacing: 8) {
+                    Circle().fill(i == 0 ? Theme.coral : Theme.coral.opacity(0.4)).frame(width: 7, height: 7)
+                    Text(engine.name).lineLimit(1)
+                    Spacer(minLength: 4)
+                    Text("\(Int((Double(engine.words) / Double(max(total, 1)) * 100).rounded()))%")
+                        .monospacedDigit().foregroundStyle(Theme.textSecondary)
                 }
+                .font(.system(size: 12))
             }
+            if engines.isEmpty { Text("I motori usati appariranno qui.").font(.system(size: 12)).foregroundStyle(Theme.textSecondary) }
         }
-        .frame(height: 26)
     }
 }
 
@@ -274,6 +289,7 @@ struct TabStrip<T: RawRepresentable & CaseIterable & Hashable>: View where T.Raw
                         .fixedSize()
                     }
                     .buttonStyle(.plain)
+                    .accessibilityAddTraits(selection == item ? .isSelected : [])
                 }
             }
             Rectangle().fill(Theme.stroke).frame(height: 1)

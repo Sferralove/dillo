@@ -43,3 +43,38 @@ struct UsageStatsTests {
         #expect(s.wordsPerMinute == 0 && s.currentStreak == 0 && s.monthTrend == nil)
     }
 }
+
+@Suite("Heatmap annuale")
+struct ActivityYearTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "Europe/Rome")!
+        return c
+    }
+
+    @Test(arguments: [2023, 2024, 2026, 2028, 2040])
+    func copreOgniGiornoSenzaDuplicati(year: Int) {
+        let model = ActivityYear(year: year, calendar: cal)
+        let dates = model.weeks.flatMap { $0 }.filter { model.contains($0) }
+        let expected = cal.range(of: .day, in: .year, for: model.start)!.count
+        #expect(dates.count == expected)
+        #expect(Set(dates).count == expected)
+        #expect(dates.first == model.start)
+        #expect(dates.last == cal.date(byAdding: .day, value: -1, to: model.end))
+        #expect(model.months.count == 12)
+        #expect(cal.component(.month, from: model.months.last!) == 12)
+    }
+
+    @Test(arguments: [2023, 2024, 2026, 2028, 2040])
+    func setteRigheDaLunediADomenica(year: Int) {
+        let model = ActivityYear(year: year, calendar: cal)
+        for week in model.weeks {
+            #expect(week.count == 7)
+            #expect(cal.component(.weekday, from: week[0]) == 2)
+            #expect(cal.component(.weekday, from: week[6]) == 1)
+        }
+        for month in model.months {
+            #expect(model.weeks[model.column(for: month)].contains(month))
+        }
+    }
+}

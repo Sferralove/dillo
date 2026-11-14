@@ -11,16 +11,26 @@ struct PageHeader<Accessory: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .center, spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(Typo.pageTitle)
-                    if let subtitle {
-                        Text(subtitle).font(.system(size: 12.5)).foregroundStyle(Theme.textSecondary)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 20) {
+                    heading
+                    Spacer(minLength: 12)
+                    if let search { SearchField(text: search, prompt: searchPrompt) }
+                    DictationPill()
                 }
-                Spacer(minLength: 20)
-                if let search { SearchField(text: search, prompt: searchPrompt) }
-                DictationPill()
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(spacing: 16) {
+                        heading
+                        Spacer(minLength: 8)
+                        DictationPill()
+                    }
+                    if let search { SearchField(text: search, prompt: searchPrompt, expands: true) }
+                }
+                VStack(alignment: .leading, spacing: 16) {
+                    heading
+                    DictationPill()
+                    if let search { SearchField(text: search, prompt: searchPrompt, expands: true) }
+                }
             }
             accessory()
             LivePreview()
@@ -29,6 +39,16 @@ struct PageHeader<Accessory: View>: View {
         .padding(.top, 34)
         .padding(.bottom, 18)
     }
+    private var heading: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title).font(Typo.pageTitle).fixedSize(horizontal: true, vertical: false)
+            if let subtitle {
+                Text(subtitle).font(.system(size: 12.5)).foregroundStyle(Theme.textSecondary)
+            }
+        }
+        .layoutPriority(1)
+    }
+
 }
 
 extension PageHeader where Accessory == EmptyView {
@@ -40,6 +60,7 @@ extension PageHeader where Accessory == EmptyView {
 struct SearchField: View {
     @Binding var text: String
     var prompt: String
+    var expands = false
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -52,10 +73,12 @@ struct SearchField: View {
             if !text.isEmpty {
                 Button { text = "" } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain).foregroundStyle(Theme.textTertiary)
+                    .accessibilityLabel("Cancella ricerca")
             }
         }
         .padding(.horizontal, 11)
-        .frame(width: 240, height: 32)
+        .frame(minWidth: expands ? 0 : 220, maxWidth: expands ? .infinity : 220)
+        .frame(height: 34)
         .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
             .strokeBorder(focused ? Theme.coral.opacity(0.6) : Theme.stroke))
@@ -63,61 +86,72 @@ struct SearchField: View {
     }
 }
 
-/// Controllo compatto di dettatura: pulsante, forma d'onda e timer.
+/// Azione di dettatura sempre esplicita, distinta dalla scorciatoia globale.
 struct DictationPill: View {
     @Environment(DictationController.self) private var controller
 
     var body: some View {
-        HStack(spacing: 10) {
-            Button {
-                controller.state.isError ? controller.dismissError() : controller.toggleFromApp()
-            } label: {
-                Image(systemName: controller.isRecording ? "stop.fill" : (controller.state.isError ? "arrow.clockwise" : "mic.fill"))
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(controller.isRecording ? .white : Theme.coral)
-                    .frame(width: 30, height: 30)
-                    .background(controller.isRecording ? Theme.coral : Theme.coral.opacity(0.15), in: Circle())
-                    .shadow(color: Theme.coral.opacity(controller.isRecording ? 0.6 : 0), radius: 8)
-            }
-            .buttonStyle(.plain)
-            .disabled(!(controller.isReady || controller.isRecording || controller.state.isError))
-            .help(controller.isRecording ? "Interrompi registrazione (⌘R)" : "Avvia registrazione (⌘R)")
+        VStack(alignment: .trailing, spacing: 5) {
+            HStack(spacing: 10) {
+                Button {
+                    controller.state.isError ? controller.dismissError() : controller.toggleFromApp()
+                } label: {
+                    Label(actionTitle, systemImage: controller.isRecording ? "stop.fill" : (controller.state.isError ? "arrow.clockwise" : "mic.fill"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(controller.isRecording ? Color.white : Theme.coral)
+                        .padding(.horizontal, 12)
+                        .frame(height: 32)
+                        .background(Theme.coral.opacity(controller.isRecording ? 1 : 0.15), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(!(controller.isReady || controller.isRecording || controller.state.isError))
+                .help("Clic o ⌘R: avvia e interrompi; il testo viene salvato nella cronologia.")
+                .accessibilityLabel(actionTitle)
 
-            LevelMeter(level: controller.level, active: controller.isRecording, bars: 18, barWidth: 2.5, spacing: 2.5, maxHeight: 20)
-
-            Group {
                 if controller.isRecording, let started = controller.recordingStartedAt {
+                    LevelMeter(level: controller.level, active: true, bars: 10, barWidth: 2, spacing: 2, maxHeight: 16)
                     TimelineView(.periodic(from: started, by: 1)) { ctx in
                         Text(Duration.seconds(ctx.date.timeIntervalSince(started)).formatted(.time(pattern: .minuteSecond)))
                             .foregroundStyle(Theme.coral)
                     }
                 } else {
-                    HStack(spacing: 5) {
-                        if controller.state == .transcribing || controller.state == .loadingModel {
-                            ProgressView().controlSize(.mini)
-                        }
-                        Text(stateLabel).foregroundStyle(Theme.textSecondary)
+                    if controller.state == .transcribing || controller.state == .loadingModel || isDownloading {
+                        ProgressView().controlSize(.mini)
                     }
+                    Text(stateLabel).foregroundStyle(Theme.textSecondary)
                 }
             }
             .font(.system(size: 11.5, weight: .medium).monospacedDigit())
-            .frame(minWidth: 54, alignment: .leading)
+            .padding(.leading, 4).padding(.trailing, 12)
+            .frame(height: 40)
+            .background(Color.white.opacity(0.04), in: Capsule())
+            .overlay(Capsule().strokeBorder(controller.isRecording ? Theme.coral.opacity(0.45) : Theme.stroke))
+
+            Text(controller.hotkeyMode == .hold
+                 ? "Nelle altre app: tieni premuto \(controller.hotkeyKey.glyph)"
+                 : "Nelle altre app: premi \(controller.hotkeyKey.glyph) per iniziare / fermare")
+                .font(.system(size: 10.5))
+                .foregroundStyle(Theme.textSecondary)
         }
-        .padding(.leading, 5)
-        .padding(.trailing, 12)
-        .frame(height: 40)
-        .background(Color.white.opacity(0.04), in: Capsule())
-        .overlay(Capsule().strokeBorder(controller.isRecording ? Theme.coral.opacity(0.45) : Theme.stroke))
-        .animation(.easeOut(duration: 0.2), value: controller.isRecording)
+        .fixedSize(horizontal: true, vertical: false)
     }
 
+    private var actionTitle: String {
+        if controller.isRecording { return "Interrompi" }
+        if controller.state.isError { return "Riprova" }
+        return "Detta"
+    }
+    private var isDownloading: Bool {
+        if case .downloading = controller.state { return true }
+        return false
+    }
     private var stateLabel: String {
         switch controller.state {
-        case .idle: controller.hotkeyKey.glyph
-        case .downloading(let p): "\(Int(p * 100))%"
-        case .loadingModel: "Avvio"
-        case .transcribing: "Trascrivo"
-        case .recording: ""
+        case .idle: "Pronto"
+        case .downloading(let p): "Download · \(Int(p * 100))%"
+        case .loadingModel: "Avvio…"
+        case .transcribing: "Trascrivo…"
+        case .recording: "Ti ascolto"
         case .error: "Errore"
         }
     }

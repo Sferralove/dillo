@@ -7,3 +7,4 @@ dist/
 *.profraw
 Config/Signing.local.xcconfig
 Dillo.xcodeproj/
+Icon?

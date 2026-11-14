@@ -33,4 +33,9 @@ struct VocabularyTests {
         let e = [VocabularyEntry(term: "C++", variants: ["c plus plus"])]
         #expect(VocabularyProcessor.apply("scrivo in c plus plus", entries: e).text == "scrivo in C++")
     }
+    @Test func normalizzaVariantiSenzaDuplicatiOVociVuote() {
+        #expect(DictionaryEntry.normalizedVariants(" cloud code, , CLOUD CODE,\n clod code ,") == "cloud code, clod code")
+        #expect(DictionaryEntry.normalizedVariants(" , ") == "")
+    }
+
 }

@@ -3,6 +3,8 @@ import SwiftUI
 
 @main
 struct DilloApp: App {
+    @FocusedBinding(\.selectedPage) private var selectedPage
+    @AppStorage("sidebarExpanded") private var sidebarExpanded = true
     private let container: ModelContainer
     @State private var controller: DictationController
 
@@ -15,10 +17,16 @@ struct DilloApp: App {
         #if DEBUG
         if DebugSnapshot.isDemo { DebugSnapshot.seed(container.mainContext) }
         #endif
-        let controller = DictationController(container: container, startServices: !Self.isRunningTests)
+        #if DEBUG
+        let startServices = !Self.isRunningTests && DebugSnapshot.snapshotDir == nil
+        #else
+        let startServices = !Self.isRunningTests
+        #endif
+        let controller = DictationController(container: container, startServices: startServices)
         _controller = State(initialValue: controller)
         #if DEBUG
         DebugSnapshot.renderAll(controller: controller, container: container)
+        DebugSnapshot.logTrafficLights()
         #endif
     }
 
@@ -49,7 +57,7 @@ struct DilloApp: App {
         Window("Dillo", id: "main") {
             MainView()
                 .environment(controller)
-                .frame(minWidth: 980, minHeight: 640)
+                .frame(minWidth: 760, minHeight: 600)
                 .preferredColorScheme(.dark)
                 .tint(Theme.coral)
                 .modifier(FirstLaunch())
@@ -63,6 +71,16 @@ struct DilloApp: App {
                 Button("Informazioni su Dillo") { AboutPanel.show() }
             }
             CommandGroup(replacing: .newItem) {}
+            CommandMenu("Vai") {
+                ForEach(Array(Page.allCases.enumerated()), id: \.element.id) { index, page in
+                    Button(page.title) { selectedPage = page }
+                        .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
+                        .disabled(selectedPage == nil)
+                }
+                Divider()
+                Toggle("Etichette barra laterale", isOn: $sidebarExpanded)
+                    .keyboardShortcut("s", modifiers: [.control, .command])
+            }
             CommandMenu("Registrazione") {
                 Button(controller.isRecording ? "Interrompi registrazione" : "Avvia registrazione") {
                     controller.toggleFromApp()

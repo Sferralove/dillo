@@ -87,3 +87,33 @@ struct UsageStats {
         }
     }
 }
+
+/// Anno civile allineato a settimane lunedì–domenica, inclusi gli spazi ai bordi.
+struct ActivityYear {
+    let calendar: Calendar
+    let start: Date
+    let end: Date
+    let gridStart: Date
+    let weeks: [[Date]]
+    let months: [Date]
+
+    init(year: Int, calendar: Calendar = .current) {
+        var cal = calendar
+        cal.firstWeekday = 2
+        self.calendar = cal
+        let yearStart = cal.date(from: DateComponents(year: year, month: 1, day: 1))!
+        start = yearStart
+        end = cal.date(byAdding: .year, value: 1, to: start)!
+        let offset = (cal.component(.weekday, from: start) + 5) % 7
+        let first = cal.date(byAdding: .day, value: -offset, to: start)!
+        gridStart = first
+        let dayCount = cal.dateComponents([.day], from: first, to: end).day!
+        weeks = (0..<((dayCount + 6) / 7)).map { week in
+            (0..<7).map { day in cal.date(byAdding: .day, value: week * 7 + day, to: first)! }
+        }
+        months = (0..<12).map { cal.date(byAdding: .month, value: $0, to: yearStart)! }
+    }
+
+    func contains(_ day: Date) -> Bool { day >= start && day < end }
+    func column(for day: Date) -> Int { calendar.dateComponents([.day], from: gridStart, to: day).day! / 7 }
+}
