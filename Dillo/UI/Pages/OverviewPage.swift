@@ -143,7 +143,8 @@ struct OverviewPage: View {
 
     private var greeting: String {
         let h = Calendar.current.component(.hour, from: .now)
-        let first = NSFullUserName().split(separator: " ").first.map(String.init) ?? ""
+        // Nome dell'utente dal sistema; mai negli screenshot dimostrativi.
+        let first = AppMode.isDemo ? "" : (NSFullUserName().split(separator: " ").first.map(String.init) ?? "")
         let salute = h < 13 ? "Buongiorno" : (h < 18 ? "Buon pomeriggio" : "Buonasera")
         return first.isEmpty ? salute : "\(salute), \(first)"
     }

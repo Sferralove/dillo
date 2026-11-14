@@ -21,7 +21,7 @@ enum DebugSnapshot {
             ("Ricordati di comprare il latte, il pane e di passare in farmacia prima delle sette.", "Note", "com.apple.Notes"),
             ("Ok, perfetto, ci sentiamo dopo pranzo per chiudere la proposta.", "Messaggi", "com.apple.MobileSMS"),
             ("Scrivi una funzione in Swift che calcoli la serie di giorni consecutivi a partire da un elenco di date.", "Claude", "com.anthropic.claudefordesktop"),
-            ("Il design della dashboard deve restare scuro con l'accento corallo, tipografia serif per i titoli.", "Slack", "com.tinyspeck.slackmacgap"),
+            ("Il design della dashboard deve restare scuro con l'accento corallo, tipografia serif per i titoli.", "Safari", "com.apple.Safari"),
         ]
         for day in 0..<120 where (day % 9 != 4 && day % 13 != 7) || day < 20 {
             let count = (day * 7 + 3) % 5 + (day < 20 ? 2 : 0)

@@ -1,0 +1,58 @@
+name: 🐞 Segnala un bug
+description: Qualcosa non funziona come dovrebbe
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie per la segnalazione! Prima di aprirla, controlla la sezione *Risoluzione dei problemi* del README
+        e che non esista già una issue simile. Per problemi di sicurezza usa invece [SECURITY.md](../blob/main/SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: Cosa è successo
+      description: Descrivi il problema e cosa ti aspettavi invece.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passi per riprodurlo
+      placeholder: |
+        1. Apri Notes
+        2. Tieni premuto ⌥ destro e detta una frase
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versione di Dillo
+      description: Menu Dillo → Informazioni su Dillo
+      placeholder: "1.0.0 (1)"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: Versione di macOS e modello di Mac
+      placeholder: "macOS 26.6 · Mac mini M4"
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Motore di trascrizione
+      options: [Apple Speech, Parakeet v3, Entrambi / non so]
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Lingua impostata
+      placeholder: "Italiano"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Altro
+      description: Screenshot, microfono usato (es. dispositivi virtuali), app in cui stavi dettando…

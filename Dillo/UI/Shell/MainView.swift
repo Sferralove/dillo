@@ -55,9 +55,7 @@ struct IconRail: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 30, height: 30)
+            AppMark(size: 30)
                 .padding(.top, 50)
                 .padding(.bottom, 16)
                 .help("Dillo")
@@ -116,5 +114,20 @@ private struct RailIcon: View {
             .contentShape(Rectangle())
             .onHover { hover = $0 }
             .animation(.easeOut(duration: 0.15), value: hover)
+    }
+}
+
+/// Il logo di Dillo disegnato in vettoriale (stesso disegno dell'icona dell'app),
+/// così è sempre nitido e aggiornato, senza dipendere dalla cache delle icone di macOS.
+struct AppMark: View {
+    var size: CGFloat
+    var body: some View {
+        RoundedRectangle(cornerRadius: size * 0.225, style: .continuous)
+            .fill(LinearGradient(colors: [Color(red: 0.102, green: 0.106, blue: 0.114),
+                                          Color(red: 0.055, green: 0.059, blue: 0.063)],
+                                 startPoint: .top, endPoint: .bottom))
+            .overlay(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous).strokeBorder(Theme.stroke))
+            .overlay(RobinView().frame(width: size * 0.78).offset(x: size * 0.05))
+            .frame(width: size, height: size)
     }
 }

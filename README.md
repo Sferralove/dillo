@@ -1,62 +1,117 @@
 <p align="center">
-  <img src="docs/icon.png" width="128" alt="Icona di Dillo">
+  <img src="docs/icon.png" width="128" alt="Icona di Dillo: un pettirosso stilizzato su sfondo grafite">
 </p>
 
 <h1 align="center">Dillo</h1>
 
 <p align="center">
   <strong>Parla, e il testo appare dove stai scrivendo.</strong><br>
-  Dettatura push-to-talk per macOS, veloce e privata: tutto avviene sul tuo Mac.
+  Dettatura push-to-talk per macOS, veloce, elegante e privata: tutto avviene sul tuo Mac.
 </p>
 
 <p align="center">
-  macOS 26+ · Apple Silicon · Swift 6 · SwiftUI · v1.0.0
+  <a href="https://github.com/Sferralove/dillo/actions/workflows/ci.yml"><img src="https://github.com/Sferralove/dillo/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licenza-MIT-FD6248" alt="Licenza MIT"></a>
+  <img src="https://img.shields.io/badge/macOS-26%2B-2E2D2E" alt="macOS 26+">
+  <img src="https://img.shields.io/badge/Apple%20Silicon-M1%2B-2E2D2E" alt="Apple Silicon">
+  <img src="https://img.shields.io/badge/Swift-6-FD6248" alt="Swift 6">
+</p>
+
+<p align="center">
+  <a href="https://github.com/Sferralove/dillo/releases/latest"><strong>Scarica l'ultima versione</strong></a> ·
+  <a href="#funzionalità">Funzionalità</a> ·
+  <a href="#compilare-dal-codice">Compilare</a> ·
+  <a href="CONTRIBUTING.md">Contribuire</a>
 </p>
 
 ---
 
-![Panoramica di Dillo](docs/screenshots/overview.png)
+![Panoramica di Dillo: parole al minuto, correzioni del dizionario, app più usate e calendario dell'attività](docs/screenshots/overview.png)
 
-## Cos'è Dillo
+> **In English** — Dillo is an open-source, push-to-talk dictation app for macOS. Hold a key, speak, release:
+> your words are typed into whatever app you're using. Speech recognition runs **entirely on-device**
+> (Apple Speech or NVIDIA Parakeet on the Neural Engine) — no audio ever leaves your Mac.
+> The interface is in Italian today; contributions, translations and issues in English are welcome.
 
-Dillo trasforma la voce in testo in **qualsiasi app**: tieni premuta una scorciatoia (di default **⌥ destro**), parla, rilascia. Il testo, già punteggiato, viene incollato dove si trova il cursore, che sia Mail, Slack, Note, il terminale o una chat con un'AI.
+## Indice
 
-Il riconoscimento vocale gira **interamente sul Mac**, sul Neural Engine di Apple Silicon. L'audio non viene mai inviato a nessun server né salvato su disco.
+- [Perché Dillo](#perché-dillo)
+- [Funzionalità](#funzionalità)
+- [Requisiti](#requisiti)
+- [Installazione](#installazione)
+- [Uso](#uso)
+- [Privacy](#privacy)
+- [Domande frequenti](#domande-frequenti)
+- [Risoluzione dei problemi](#risoluzione-dei-problemi)
+- [Compilare dal codice](#compilare-dal-codice)
+- [Architettura](#architettura)
+- [Rilascio](#rilascio)
+- [Roadmap](#roadmap)
+- [Contribuire](#contribuire)
+- [Crediti e licenza](#crediti-e-licenza)
+
+## Perché Dillo
+
+Parlare è circa **tre volte più veloce** che scrivere a tastiera. Dillo rende la voce un modo naturale di scrivere su Mac:
+
+- **Ovunque**: funziona in qualsiasi app, dalla mail al terminale alle chat con un'AI, senza copia-incolla.
+- **Istantaneo**: con il motore nativo di Apple il testo è pronto pochi istanti dopo il rilascio del tasto.
+- **Privato per progetto**: niente cloud, niente account, niente telemetria. L'audio esiste solo in memoria, il tempo della dettatura.
+- **Tuo**: un dizionario personale per nomi e termini tecnici, e una cronologia ricercabile ed esportabile.
+- **Libero**: codice aperto con licenza MIT.
+
+*Dillo* in italiano significa "dillo, pronuncialo". La mascotte è un pettirosso, piccolo uccello che canta.
 
 ## Funzionalità
 
-- **Push-to-talk ovunque**: scorciatoia globale configurabile (⌥, ⌘, ⌃ destro, Fn), in modalità *tieni premuto* o *premi per avviare/fermare*. **Esc** annulla la dettatura in corso.
-- **Due motori di trascrizione on-device**
-  - **Apple Speech** (predefinito): il riconoscimento nativo di macOS 26, in streaming. Il testo è pronto pochi istanti dopo il rilascio, e il modello lo gestisce macOS.
-  - **Parakeet v3** (NVIDIA, tramite FluidAudio): 25 lingue europee, molto preciso. Si scarica una sola volta (~470 MB).
-- **Anteprima dal vivo**: un indicatore flottante con il pettirosso di Dillo mostra la voce e le parole mentre le pronunci, con una dissolvenza morbida parola per parola.
-- **Dizionario personale**: nomi, sigle e termini tecnici. Le parole vengono suggerite al riconoscimento e le varianti sbagliate (es. "cloud code") sono corrette automaticamente ("Claude Code").
-- **Cronologia** ricercabile, raggruppata per giorno, con app di destinazione, durata e correzioni. Ogni voce si copia con un clic. Si esporta in Markdown o CSV.
+### Dettatura
+- **Push-to-talk ovunque**: scorciatoia globale configurabile (⌥ destro, ⌥ sinistro, ⌘ destro, ⌃ destro, Fn), in modalità *tieni premuto* o *premi per avviare e fermare*.
+- **Incolla automatico** nel punto in cui si trova il cursore, poi gli appunti tornano come prima.
+- **Esc** annulla la dettatura in corso.
+- **Anteprima dal vivo**: un indicatore flottante con il pettirosso mostra la voce e le parole mentre le pronunci, con una dissolvenza morbida parola per parola.
+
+### Due motori on-device
+| | **Apple Speech** (predefinito) | **Parakeet v3** |
+|---|---|---|
+| Origine | Riconoscimento nativo di macOS 26 (`SpeechAnalyzer`) | NVIDIA Parakeet TDT 0.6B v3 via [FluidAudio](https://github.com/FluidInference/FluidAudio) |
+| Funzionamento | Streaming: testo pronto quasi subito | Trascrizione rapidissima (~100× il tempo reale su M4) |
+| Lingue | Lingua impostata (italiano, inglese, spagnolo, francese, tedesco, portoghese) | 25 lingue europee |
+| Download | Gestito da macOS | ~470 MB, una sola volta |
+
+### Dizionario personale
+Nomi, sigle, marchi e termini tecnici. Le parole vengono **suggerite al riconoscimento** (Apple Speech) e le **varianti sbagliate sono corrette** automaticamente: "cloud code" diventa "Claude Code".
+
+### Cronologia e Panoramica
+- **Cronologia** ricercabile, raggruppata per giorno, con app di destinazione, durata e correzioni. Ogni voce si copia con un clic. Si esporta in **Markdown** o **CSV**.
 - **Panoramica**: parole al minuto (confrontate con la tastiera), parole dettate, correzioni, app più usate, giorni consecutivi di utilizzo e calendario dell'attività.
-- **Scelta del microfono**, inclusi dispositivi virtuali (Krisp, BlackHole…).
+
+### Rifiniture
+- Scelta del **microfono**, inclusi i dispositivi virtuali (Krisp, BlackHole…).
 - **Avviso di microfono muto** se all'inizio della dettatura non arriva audio.
 - **Rilevamento della lingua**: se detti in un'altra lingua, Dillo propone di cambiarla.
-- **Barra dei menu** con il pettirosso animato: a riposo è una sagoma, mentre detti escono onde corallo dal becco, mentre trascrive le onde pulsano.
-- **Guida introduttiva** al primo avvio: permessi spiegati passo per passo e una dettatura di prova.
+- **Pettirosso animato nella barra dei menu**: a riposo è una sagoma, mentre detti le onde corallo seguono la voce, mentre trascrive pulsano.
+- **Guida introduttiva** al primo avvio, con i permessi spiegati e una dettatura di prova.
+- **Controllo dei dati**: conservazione della cronologia, esportazione ed eliminazione.
 
 | Cronologia | Dizionario | Benvenuto |
 |---|---|---|
-| ![Cronologia](docs/screenshots/history.png) | ![Dizionario](docs/screenshots/dictionary.png) | ![Benvenuto](docs/screenshots/onboarding.png) |
+| ![Cronologia delle trascrizioni raggruppate per giorno](docs/screenshots/history.png) | ![Dizionario con parole e varianti](docs/screenshots/dictionary.png) | ![Schermata di benvenuto con il pettirosso](docs/screenshots/onboarding.png) |
 
 ## Requisiti
 
 - macOS **26 Tahoe** o successivo
 - Mac con **Apple Silicon** (M1 o successivo)
-- Per compilare: **Xcode 26+** e [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 
 ## Installazione
 
-1. Apri `Dillo-x.y.z.dmg` e trascina **Dillo** nella cartella **Applicazioni**.
-2. Avvia Dillo: si apre la guida introduttiva.
-3. Concedi i due permessi richiesti:
-   - **Microfono**, per ascoltare la voce;
+1. Scarica `Dillo-x.y.z.dmg` dalla pagina [Releases](https://github.com/Sferralove/dillo/releases/latest).
+2. Apri il DMG e trascina **Dillo** nella cartella **Applicazioni**.
+3. Avvia Dillo: la guida introduttiva ti accompagna nei due permessi necessari.
+   - **Microfono**, per ascoltare la voce.
    - **Accessibilità**, per la scorciatoia globale e per incollare il testo nelle altre app (Impostazioni di Sistema → Privacy e sicurezza → Accessibilità).
-4. Fai la dettatura di prova. Fatto.
+4. Fai la dettatura di prova: sei pronto.
+
+Preferisci compilarla tu? Vedi [Compilare dal codice](#compilare-dal-codice).
 
 ## Uso
 
@@ -65,54 +120,81 @@ Il riconoscimento vocale gira **interamente sul Mac**, sul Neural Engine di Appl
 | Dettare in qualsiasi app | Tieni premuto **⌥ destro**, parla, rilascia |
 | Annullare la dettatura | **Esc** mentre registri |
 | Registrare dalla finestra di Dillo | Pulsante microfono oppure **⌘R** (il testo va nella cronologia) |
-| Cercare nella cronologia | **⌘F** |
+| Cercare nella cronologia o nel dizionario | **⌘F** |
 | Impostazioni | **⌘,** |
 | Riaprire la guida | Menu **Aiuto → Guida introduttiva a Dillo** |
 
-La scorciatoia, la modalità e il microfono si cambiano in **Impostazioni**.
-
 ### Impostazioni
-
 - **Generale**: microfono, incolla automatico, indicatore flottante, suoni, apertura al login, stato dei permessi.
-- **Scorciatoia**: tasto e modalità (tieni premuto / premi per avviare e fermare).
+- **Scorciatoia**: tasto e modalità.
 - **Modello**: Apple Speech o Parakeet v3, lingua, stato del download.
-- **Dati**: periodo di conservazione della cronologia, esportazione, eliminazione della cronologia e del modello Parakeet.
+- **Dati**: conservazione della cronologia, esportazione, eliminazione della cronologia e del modello Parakeet.
+
+<p align="center">
+  <img src="docs/screenshots/menubar.png" width="120" alt="Icona di Dillo nella barra dei menu durante la dettatura: il pettirosso con le onde sonore"><br>
+  <sub>Il pettirosso nella barra dei menu durante una dettatura.</sub>
+</p>
 
 ## Privacy
 
 - **Nessun audio lascia il Mac.** Entrambi i motori lavorano in locale, e l'audio vive solo in memoria per la durata della dettatura.
 - **Nessun account, nessuna telemetria, nessun tracciamento.**
-- Le uniche connessioni di rete sono **i download dei modelli**: Apple Speech tramite macOS, Parakeet da Hugging Face al primo utilizzo.
-- Cronologia e dizionario sono salvati solo in `~/Library/Application Support/Dillo/` e si possono esportare o eliminare dalle Impostazioni.
+- **Rete usata solo per i modelli**: Apple Speech tramite macOS, Parakeet da Hugging Face al primo utilizzo.
+- **Dati solo in locale**: cronologia e dizionario stanno in `~/Library/Application Support/Dillo/`, da cui puoi esportarli o eliminarli in qualsiasi momento.
+- **Codice aperto**: puoi verificare tutto quanto sopra leggendo il codice.
+
+Dettagli sul modello di sicurezza in [SECURITY.md](SECURITY.md).
+
+## Domande frequenti
+
+**Funziona senza internet?**
+Sì. Dopo il primo download del modello della lingua (Apple Speech) o di Parakeet, Dillo funziona completamente offline.
+
+**Quale motore devo usare?**
+Apple Speech è il più reattivo e non occupa spazio nell'app: è la scelta consigliata. Prova Parakeet se detti spesso in più lingue o se ti serve più precisione su termini difficili.
+
+**Perché non è sul Mac App Store?**
+Per incollare il testo nelle altre app, Dillo deve inviare eventi da tastiera, cosa che la sandbox del Mac App Store non permette. Le versioni ufficiali sono firmate con Developer ID e notarizzate da Apple.
+
+**Posso usarlo in inglese o in un'altra lingua?**
+Sì, la lingua di dettatura si sceglie in Impostazioni → Modello. Per ora l'interfaccia è solo in italiano: [le traduzioni sono benvenute](CONTRIBUTING.md).
+
+**Dillo salva la mia voce?**
+No. L'audio non viene mai scritto su disco. Viene salvato solo il testo trascritto, nella cronologia locale, e puoi impostarne la conservazione o eliminarlo.
 
 ## Risoluzione dei problemi
 
 | Problema | Soluzione |
 |---|---|
-| La scorciatoia non fa nulla | Controlla che Dillo sia attivo in Privacy e sicurezza → **Accessibilità**. Se hai aggiornato l'app e non funziona più, rimuovi la voce con **–** e aggiungila di nuovo. |
-| Il testo resta negli appunti ma non viene incollato | Stesso caso: manca il permesso Accessibilità. Il menu di Dillo lo segnala. |
-| «Il microfono non sente nulla» | Scegli il microfono giusto in Impostazioni → Generale → Microfono e controlla il livello d'ingresso in Impostazioni di Sistema → Suono. |
-| Errore durante il download di Parakeet | Di solito è un problema di rete temporaneo: Dillo riprova da solo 3 volte, poi usa **Riprova** in Impostazioni → Modello. |
-| Testo nella lingua sbagliata | Imposta la lingua in Impostazioni → Modello, oppure accetta la proposta "Stai parlando…?". |
-| Riavviare da zero | Esci da Dillo ed elimina `~/Library/Application Support/Dillo/` (cronologia e dizionario). |
+| La scorciatoia non fa nulla | Controlla che Dillo sia attivo in Privacy e sicurezza → **Accessibilità**. Dopo un aggiornamento, se non funziona più, rimuovi la voce con **–** e aggiungila di nuovo. |
+| Il testo resta negli appunti ma non viene incollato | Stesso caso: manca il permesso Accessibilità. Dillo lo segnala nella finestra e nel menu. |
+| «Il microfono non sente nulla» | Scegli il microfono giusto in Impostazioni → Generale e controlla il livello d'ingresso in Impostazioni di Sistema → Suono. |
+| Errore durante il download di Parakeet | Di solito è un problema di rete temporaneo: Dillo riprova da solo, poi usa **Riprova** in Impostazioni → Modello. |
+| Testo nella lingua sbagliata | Imposta la lingua in Impostazioni → Modello, oppure accetta la proposta «Stai parlando…?». |
+| Ripartire da zero | Esci da Dillo ed elimina `~/Library/Application Support/Dillo/`. |
+
+Non hai trovato la risposta? [Apri una issue](https://github.com/Sferralove/dillo/issues/new/choose).
 
 ---
 
-## Sviluppo
+## Compilare dal codice
 
-### Compilare ed eseguire
+Requisiti: **Xcode 26+** e [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 brew install xcodegen
-xcodegen generate          # crea Dillo.xcodeproj da project.yml
-open Dillo.xcodeproj       # oppure:
-xcodebuild -project Dillo.xcodeproj -scheme Dillo -configuration Debug -derivedDataPath build build
-open build/Build/Products/Debug/Dillo.app
+git clone https://github.com/Sferralove/dillo.git
+cd dillo
+
+# Firma con il tuo account Apple (basta un account gratuito)
+cp Config/Signing.local.xcconfig.example Config/Signing.local.xcconfig
+# → imposta il tuo DEVELOPMENT_TEAM nel file
+
+xcodegen generate
+open Dillo.xcodeproj        # poi ⌘R
 ```
 
-Il progetto Xcode è **generato**: le modifiche a target, impostazioni e Info.plist vanno fatte in [`project.yml`](project.yml), non in Xcode.
-
-Per la firma serve un certificato del team impostato in `DEVELOPMENT_TEAM`. Una firma stabile è importante, perché macOS lega il permesso Accessibilità alla firma dell'app.
+Il progetto Xcode è **generato** da [`project.yml`](project.yml) e non è incluso nel repository: target, impostazioni e Info.plist si modificano lì.
 
 ### Test
 
@@ -120,93 +202,106 @@ Per la firma serve un certificato del team impostato in `DEVELOPMENT_TEAM`. Una 
 xcodebuild test -project Dillo.xcodeproj -scheme Dillo -derivedDataPath build
 ```
 
-I test (Swift Testing, cartella [`DilloTests/`](DilloTests)) coprono la logica pura: correzioni del dizionario, allineamento dell'anteprima live, statistiche e serie di giorni, parser dei tracciati SVG, rilevamento della lingua, esportazione CSV. Durante i test l'app non avvia scorciatoie, microfono né modelli.
+I test ([`DilloTests/`](DilloTests), con Swift Testing) coprono la logica pura: correzioni del dizionario, allineamento dell'anteprima live, statistiche e serie di giorni, parser SVG, rilevamento della lingua, esportazione CSV. La [CI](.github/workflows/ci.yml) li esegue su ogni pull request e fallisce se la build contiene warning.
 
-### Architettura
-
-```
-Dillo/
-├── App/            Punto d'ingresso, finestre e comandi, pannello "Informazioni", snapshot di debug
-├── Core/           DictationController (stati e flusso), modelli SwiftData, preferenze,
-│                   dizionario, statistiche, esportazione
-├── Engines/        Protocollo SpeechEngine + AppleSpeechEngine e ParakeetEngine
-├── Services/       Microfono (AVAudioEngine/CoreAudio), scorciatoia globale, incolla,
-│                   permessi, rilevamento lingua
-└── UI/             Finestra principale (barra a icone + pagine), indicatore flottante,
-                    barra dei menu, impostazioni, guida, tema e marchio
-```
-
-**Flusso di una dettatura**
-
-```
-Scorciatoia (HotkeyMonitor)
-  → DictationController.start
-  → AudioRecorder (AVAudioEngine, microfono scelto)
-  → SpeechEngine.append(buffer)           ← anteprima live → HUD / finestra
-rilascio
-  → SpeechEngine.finish()  → testo
-  → VocabularyProcessor (dizionario)
-  → SwiftData (cronologia) + TextInserter (appunti + ⌘V, poi ripristino degli appunti)
-```
-
-- **`SpeechEngine`** è il punto di estensione. Un motore riceve i buffer del microfono mentre parli e restituisce il testo finale al rilascio. Per aggiungerne uno basta un nuovo tipo conforme e un caso in `EngineKind`.
-- **Apple Speech** usa `SpeechAnalyzer` + `SpeechTranscriber` in streaming, con risultati provvisori e il dizionario passato come `contextualStrings`.
-- **Parakeet** accumula l'audio a 16 kHz, aggiorna l'anteprima sugli ultimi 12 secondi e al rilascio trascrive tutto (≈ 100× il tempo reale su M4).
-- **Persistenza**: SwiftData in `~/Library/Application Support/Dillo/Dillo.store`. Se il database è danneggiato, viene spostato da parte (non cancellato) e l'app riparte con un database nuovo.
-- **Niente sandbox**: incollare nelle altre app richiede di inviare eventi da tastiera, cosa che la sandbox del Mac App Store non permette. Per questo Dillo si distribuisce con **Developer ID** e notarizzazione, non sul Mac App Store.
-
-### Snapshot dell'interfaccia (solo Debug)
+### Screenshot
 
 ```bash
 build/Build/Products/Debug/Dillo.app/Contents/MacOS/Dillo -demo -snapshot /tmp/dillo-snap
 ```
 
-Avvia Dillo con un database di esempio in memoria e salva un PNG di ogni pagina, della guida e delle icone della barra dei menu, poi esce. Le immagini in `docs/screenshots` sono generate così.
+Avvia Dillo con dati di esempio in memoria, senza dati personali, e salva un PNG di ogni pagina. Le immagini di questo README sono generate così.
+
+## Architettura
+
+```
+Dillo/
+├── App/        Punto d'ingresso, finestre e comandi, pannello Informazioni, snapshot di debug
+├── Core/       DictationController (stati e flusso), modelli SwiftData, preferenze,
+│               dizionario, statistiche, esportazione
+├── Engines/    Protocollo SpeechEngine + AppleSpeechEngine e ParakeetEngine
+├── Services/   Microfono (AVAudioEngine/CoreAudio), scorciatoia globale, incolla,
+│               permessi, rilevamento lingua
+└── UI/         Finestra (barra a icone + pagine), indicatore flottante, barra dei menu,
+                impostazioni, guida, tema e marchio
+```
+
+**Il percorso di una dettatura**
+
+```
+Scorciatoia (HotkeyMonitor)
+  → DictationController.start
+  → AudioRecorder (AVAudioEngine, microfono scelto)
+  → SpeechEngine.append(buffer)        → anteprima live (HUD, finestra)
+rilascio del tasto
+  → SpeechEngine.finish()              → testo
+  → VocabularyProcessor                → dizionario applicato
+  → SwiftData (cronologia) + TextInserter (appunti → ⌘V → ripristino)
+```
+
+- **`SpeechEngine`** è il punto di estensione: un motore riceve l'audio mentre parli e restituisce il testo al rilascio. Per aggiungerne uno vedi [CONTRIBUTING.md](CONTRIBUTING.md#aggiungere-un-motore-di-trascrizione).
+- **Apple Speech** usa `SpeechAnalyzer` + `SpeechTranscriber` in streaming, con risultati provvisori; il dizionario arriva come `contextualStrings`.
+- **Parakeet** accumula l'audio a 16 kHz, aggiorna l'anteprima sugli ultimi 12 secondi e al rilascio trascrive tutto.
+- **Persistenza**: SwiftData. Se il database è danneggiato, viene messo da parte e l'app riparte con uno nuovo.
+- **Interfaccia**: SwiftUI con `@Observable`, AppKit solo per pannelli, eventi globali e appunti. Il tema è in [`Theme.swift`](Dillo/UI/Theme.swift), il pettirosso vettoriale in [`RobinMark.swift`](Dillo/UI/RobinMark.swift).
 
 ### Marchio
-
-- Icona dell'app: `Branding/AppIcon-1024.png` (sorgente `Branding/AppIcon.svg`, Affinity). Per rigenerare tutte le dimensioni: `zsh Branding/make_icon.sh`.
-- Mascotte: `Branding/Robin.svg` (viewBox 640×512, livelli `beak`, `body`, `breast`, `eye`, `wave1`–`wave3`). I tracciati sono copiati in [`RobinMark.swift`](Dillo/UI/RobinMark.swift) e disegnati in vettoriale: se aggiorni l'SVG, ricopia gli attributi `d`.
-- Palette: corallo `#FD6248` / `#FF6B5A`, grafite `#111214` / `#2E2D2E`, crema `#F4F1EA`. I token sono in [`Theme.swift`](Dillo/UI/Theme.swift). Titoli e numeri usano il serif di sistema (New York).
+- Icona: `Branding/AppIcon-1024.png` (sorgente Affinity `AppIcon.af` / `AppIcon.svg`). Per rigenerare le dimensioni: `zsh Branding/make_icon.sh`.
+- Mascotte: `Branding/Robin.svg` (livelli `beak`, `body`, `breast`, `eye`, `wave1`–`wave3`), disegnata in vettoriale da `RobinMark.swift`.
+- Palette: corallo `#FD6248`, grafite `#111214` / `#2E2D2E`, crema `#F4F1EA`. Titoli e numeri usano il serif di sistema (New York).
 
 ## Rilascio
 
 ```bash
-# Build di prova (firmata con il certificato di sviluppo, non distribuibile)
+# Build di prova (firma di sviluppo, non distribuibile)
 scripts/release.sh
 
-# Build distribuibile: firmata Developer ID e notarizzata da Apple
+# Build ufficiale: firmata Developer ID e notarizzata da Apple
 DEVELOPER_ID="Developer ID Application: Nome Cognome (TEAMID)" \
 NOTARY_PROFILE="dillo-notary" \
 scripts/release.sh
 ```
 
-Lo script [`scripts/release.sh`](scripts/release.sh):
-1. rigenera il progetto ed esegue i test;
-2. crea l'archivio Release;
-3. firma con Developer ID (con hardened runtime e timestamp);
-4. notarizza l'app con `notarytool` e applica lo staple;
-5. crea `dist/Dillo-x.y.z.dmg` con il collegamento ad Applicazioni;
-6. firma, notarizza e applica lo staple anche al DMG;
-7. scrive lo SHA-256.
+Lo script [`scripts/release.sh`](scripts/release.sh) esegue i test e crea l'archivio Release. Poi firma l'app con hardened runtime, la notarizza e applica lo staple. Infine crea `dist/Dillo-x.y.z.dmg`, lo firma, lo notarizza e ne scrive lo SHA-256.
 
-**Una tantum, prima del primo rilascio**
-1. Iscriviti all'[Apple Developer Program](https://developer.apple.com/programs/) e crea un certificato **Developer ID Application**.
-2. Salva le credenziali per la notarizzazione:
-   ```bash
-   xcrun notarytool store-credentials dillo-notary --apple-id <email> --team-id <TEAMID>
-   ```
+**Una tantum**: serve un certificato **Developer ID Application** ([Apple Developer Program](https://developer.apple.com/programs/)) e le credenziali di notarizzazione:
+```bash
+xcrun notarytool store-credentials dillo-notary --apple-id <email> --team-id <TEAMID>
+```
 
-**Per ogni versione**: aggiorna `MARKETING_VERSION` e `CURRENT_PROJECT_VERSION` in [`project.yml`](project.yml), annota le novità in [`CHANGELOG.md`](CHANGELOG.md), poi lancia lo script.
+**Per ogni versione**:
+1. aggiorna `MARKETING_VERSION` e `CURRENT_PROJECT_VERSION` in [`project.yml`](project.yml);
+2. sposta le voci di *Non ancora rilasciato* del [CHANGELOG](CHANGELOG.md) nella nuova versione;
+3. lancia lo script e pubblica il DMG in una [GitHub Release](https://github.com/Sferralove/dillo/releases/new) con il tag `vX.Y.Z`.
 
-## Crediti
+## Roadmap
 
-- Riconoscimento vocale **Apple Speech** (framework Speech di macOS).
-- **Parakeet TDT 0.6B v3** © NVIDIA, licenza CC-BY-4.0.
-- **FluidAudio** © FluidInference, licenza Apache 2.0.
+Idee per le prossime versioni. Discutiamone nelle [issue](https://github.com/Sferralove/dillo/issues):
 
-Dettagli in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Gli stessi crediti sono nel pannello *Informazioni su Dillo*.
+- [ ] Interfaccia in inglese e altre lingue
+- [ ] Aggiornamenti automatici (Sparkle)
+- [ ] Scorciatoie personalizzate con combinazioni di tasti
+- [ ] Comandi vocali per la punteggiatura e la formattazione ("a capo", "elenco puntato")
+- [ ] Riscrittura del testo con un modello linguistico locale (tono, pulizia delle esitazioni)
+- [ ] Profili per app (lingua o dizionario diversi in base all'app attiva)
 
-## Licenza
+## Contribuire
 
-© 2026 Angelo Sferra. Tutti i diritti riservati.
+I contributi sono benvenuti: bug, idee, traduzioni, documentazione e codice.
+
+- Leggi la guida [CONTRIBUTING.md](CONTRIBUTING.md) per preparare l'ambiente e il flusso di lavoro.
+- Rispetta il [Codice di condotta](CODE_OF_CONDUCT.md).
+- Segnala le vulnerabilità in privato secondo [SECURITY.md](SECURITY.md).
+
+## Crediti e licenza
+
+Dillo è distribuito con licenza **MIT**: vedi [LICENSE](LICENSE). Il nome, il pettirosso e l'icona identificano il progetto ufficiale: i fork distribuiti pubblicamente dovrebbero usare un nome e un'icona diversi.
+
+Dillo si appoggia a:
+- **Apple Speech**, il framework di riconoscimento vocale di macOS;
+- **[Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3)** © NVIDIA, licenza CC-BY-4.0;
+- **[FluidAudio](https://github.com/FluidInference/FluidAudio)** © FluidInference, licenza Apache 2.0.
+
+Dettagli in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Le novità di ogni versione sono nel [CHANGELOG](CHANGELOG.md).
+
+<p align="center"><sub>Fatto con cura in Italia 🐦</sub></p>

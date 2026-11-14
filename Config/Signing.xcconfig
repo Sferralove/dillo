@@ -1,0 +1,13 @@
+// Firma del codice di Dillo.
+//
+// Questi valori sono quelli del manutentore. Per compilare con il TUO account Apple
+// copia `Signing.local.xcconfig.example` in `Signing.local.xcconfig` (ignorato da git)
+// e imposta il tuo DEVELOPMENT_TEAM: sovrascrive i valori qui sotto.
+//
+// Una firma stabile è importante: macOS lega il permesso Accessibilità alla firma dell'app.
+
+DEVELOPMENT_TEAM = 889687QKV6
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Development
+
+#include? "Signing.local.xcconfig"

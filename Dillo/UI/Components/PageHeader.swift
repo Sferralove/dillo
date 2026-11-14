@@ -156,6 +156,8 @@ struct LivePreview: View {
                 LanguageBanner(language: lang)
             } else if let error = controller.errorMessage {
                 Banner(symbol: "exclamationmark.triangle", text: error, action: ("Riprova", { controller.loadEngine() }))
+            } else if AppMode.isDemo {
+                EmptyView()
             } else if !controller.micGranted {
                 Banner(symbol: "mic.slash",
                        text: "Dillo non ha accesso al microfono. Consentilo in Impostazioni di Sistema → Privacy e sicurezza → Microfono.",

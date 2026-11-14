@@ -111,3 +111,14 @@ enum Pref {
     static let sounds = "playSounds"
     static let retentionDays = "historyRetentionDays"
 }
+
+/// Modalità dimostrativa (solo build Debug con `-demo`): dati di esempio, nessun dato personale.
+enum AppMode {
+    static var isDemo: Bool {
+        #if DEBUG
+        CommandLine.arguments.contains("-demo")
+        #else
+        false
+        #endif
+    }
+}

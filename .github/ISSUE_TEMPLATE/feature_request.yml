@@ -1,0 +1,27 @@
+name: 💡 Proponi un'idea
+description: Una nuova funzione o un miglioramento
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Quale problema risolve?
+      description: Racconta la situazione in cui ti servirebbe. Partire dal problema aiuta a trovare la soluzione migliore.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Come te la immagini
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative considerate
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: La proposta non richiede di inviare audio o testo a servizi esterni (Dillo lavora solo on-device).
