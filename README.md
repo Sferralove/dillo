@@ -28,7 +28,16 @@
 
 ![Panoramica di Dillo: parole al minuto, correzioni del dizionario, app più usate e calendario dell'attività](docs/screenshots/overview.png)
 
-> **In English** — Dillo is an open-source, push-to-talk dictation app for macOS. Hold a key, speak, release:
+> [!NOTE]
+> **Un progetto personale, in evoluzione.** Dillo nasce come progetto personale ed è stato sviluppato in
+> *vibecoding*, cioè scritto in gran parte insieme a strumenti di intelligenza artificiale. È open source e
+> funziona, ma è ancora un **work in progress**: può contenere imperfezioni, bug o parti non complete al 100%.
+> Segnalazioni e contributi sono benvenuti: aiutano a farlo crescere.
+
+> **In English** — Dillo is a personal project built largely through *vibe coding* (AI-assisted development).
+> It works, but it's still a work in progress and may be imperfect or incomplete. Feedback and contributions are welcome.
+>
+> Dillo is an open-source, push-to-talk dictation app for macOS. Hold a key, speak, release:
 > your words are typed into whatever app you're using. Speech recognition runs **entirely on-device**
 > (Apple Speech or NVIDIA Parakeet on the Neural Engine) — no audio ever leaves your Mac.
 > The interface is in Italian today; contributions, translations and issues in English are welcome.
