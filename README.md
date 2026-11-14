@@ -299,7 +299,7 @@ I contributi sono benvenuti: bug, idee, traduzioni, documentazione e codice.
 
 ## Crediti e licenza
 
-Dillo è distribuito con licenza **MIT**: vedi [LICENSE](LICENSE). Il nome, il pettirosso e l'icona identificano il progetto ufficiale: i fork distribuiti pubblicamente dovrebbero usare un nome e un'icona diversi.
+Dillo è distribuito con licenza **MIT**: vedi [LICENSE](LICENSE). Il nome, il pettirosso e l'icona identificano il progetto ufficiale: per i fork pubblici vedi [TRADEMARKS.md](TRADEMARKS.md).
 
 Dillo si appoggia a:
 - **Apple Speech**, il framework di riconoscimento vocale di macOS;
