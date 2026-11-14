@@ -48,7 +48,14 @@ jobs:
 
       - name: Nessun warning nel codice di Dillo
         run: |
-          if grep -E "/Dillo(Tests)?/.*warning:" build/xcodebuild.log; then
-            echo "::error::La build contiene warning nel codice di Dillo"
+          # Ogni warning nel codice di Dillo diventa un'annotazione con file e riga, visibile nella pagina della CI.
+          warnings=$(grep -E "/Dillo(Tests)?/[^:]+:[0-9]+:[0-9]+: warning:" build/xcodebuild.log | sort -u || true)
+          if [ -n "$warnings" ]; then
+            echo "$warnings" | while IFS= read -r line; do
+              file=$(echo "$line" | sed -E 's#^.*/(Dillo(Tests)?/[^:]+):([0-9]+):([0-9]+): warning: (.*)$#\1#')
+              row=$(echo "$line" | sed -E 's#^.*/(Dillo(Tests)?/[^:]+):([0-9]+):([0-9]+): warning: (.*)$#\3#')
+              msg=$(echo "$line" | sed -E 's#^.*: warning: (.*)$#\1#')
+              echo "::error file=$file,line=$row::$msg"
+            done
             exit 1
           fi
