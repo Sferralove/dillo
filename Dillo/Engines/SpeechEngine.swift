@@ -29,11 +29,26 @@ final class PCMConverter: @unchecked Sendable {
         guard let converter else { return nil }
         let capacity = AVAudioFrameCount(Double(buffer.frameLength) * target.sampleRate / buffer.format.sampleRate) + 1
         guard let out = AVAudioPCMBuffer(pcmFormat: target, frameCapacity: capacity) else { return nil }
-        var fed = false
-        converter.convert(to: out, error: nil) { _, status in
-            if fed { status.pointee = .noDataNow; return nil }
-            fed = true; status.pointee = .haveData; return buffer
-        }
+        // Nelle SDK più recenti il blocco di input è @Sendable. AVAudioConverter lo chiama in modo sincrono,
+        // dentro `convert`, sullo stesso thread: la "sorgente" incapsula buffer e stato senza condivisione reale.
+        let source = OneShotInput(buffer)
+        converter.convert(to: out, error: nil) { _, status in source.next(status) }
         return out.frameLength > 0 ? out : nil
+    }
+}
+
+/// Fornisce un solo buffer al convertitore, poi segnala "nessun dato".
+/// `@unchecked Sendable` è sicuro: l'istanza vive solo per la durata di una chiamata sincrona a `convert`.
+private final class OneShotInput: @unchecked Sendable {
+    private let buffer: AVAudioPCMBuffer
+    private var fed = false
+
+    init(_ buffer: AVAudioPCMBuffer) { self.buffer = buffer }
+
+    func next(_ status: UnsafeMutablePointer<AVAudioConverterInputStatus>) -> AVAudioBuffer? {
+        if fed { status.pointee = .noDataNow; return nil }
+        fed = true
+        status.pointee = .haveData
+        return buffer
     }
 }
