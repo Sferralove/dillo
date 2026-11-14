@@ -7,12 +7,15 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 
 ## [Non ancora rilasciato]
 
+## [1.1.0] — 2026-11-14
+
+Prima versione pubblica, come anteprima: il DMG non è ancora notarizzato da Apple.
+
 ### Aggiunto
 - Dillo diventa open source con licenza MIT.
 - Guida per contribuire, codice di condotta, policy di sicurezza, modelli per issue e pull request.
 - Integrazione continua su GitHub Actions: build, test e controllo dei warning su ogni pull request.
 - Firma configurabile tramite `Config/Signing.local.xcconfig`, per compilare con il proprio account Apple.
-
 - Barra laterale espandibile con le etichette delle pagine; si compatta da sola nelle finestre strette.
 - Menu **Vai** con ⌘1, ⌘2, ⌘3 per passare tra Panoramica, Cronologia e Dizionario; ⌃⌘S per la barra laterale.
 - Calendario dell'attività sull'intero anno (gennaio–dicembre), con selettore dell'anno e dettaglio del giorno.
@@ -31,9 +34,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 - Gli screenshot dimostrativi non mostrano più il nome dell'utente né gli avvisi sui permessi.
 - La versione di FluidAudio è fissata (0.18.3) per build riproducibili; il progetto Xcode generato non è più versionato.
 
+### Corretto
+- La conversione dell'audio è compatibile con la concorrenza stretta delle SDK più recenti.
+- Il suggerimento di scorrimento del calendario non copre più le celle.
+
 ## [1.0.0] — 2026-11-14
 
-Prima versione.
+Prima versione (non distribuita).
 
 ### Aggiunto
 - Dettatura push-to-talk in qualsiasi app, con scorciatoia globale configurabile e annullamento con Esc.
@@ -47,5 +54,6 @@ Prima versione.
 - Pettirosso animato nella barra dei menu e guida introduttiva al primo avvio.
 - Impostazioni per conservazione, esportazione ed eliminazione dei dati.
 
-[Non ancora rilasciato]: https://github.com/Sferralove/dillo/compare/v1.0.0...HEAD
+[Non ancora rilasciato]: https://github.com/Sferralove/dillo/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Sferralove/dillo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Sferralove/dillo/releases/tag/v1.0.0
