@@ -18,6 +18,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 - Calendario dell'attività sull'intero anno (gennaio–dicembre), con selettore dell'anno e dettaglio del giorno.
 
 ### Modificato
+- Impostazioni ridisegnate: sezioni nella barra laterale (Generale, Dettatura, Modello, Permessi, Dati e privacy,
+  Informazioni) e righe con valore attuale e pulsante «Cambia».
+- Guida al primo avvio ridisegnata: titolo grande, illustrazione con il tasto, passi con etichette,
+  note su privacy e permessi, pulsante principale ben visibile e «Configura più tardi».
+- Controllo di dettatura più chiaro (tasto disegnato, timer e livello durante la registrazione).
+- Campi di testo e pulsanti con uno stile proprio e coerente; contenuto centrato sugli schermi grandi.
+- Voce «Guida» nella barra laterale.
 - Il pulsante della barra laterale si trova accanto ai pulsanti della finestra, come nelle app di sistema.
 - Panoramica e Dizionario ridisegnati; le varianti del dizionario vengono ripulite da duplicati e voci vuote.
 - Il logo nella barra laterale è disegnato in vettoriale, così è sempre aggiornato e nitido.

@@ -94,7 +94,7 @@ enum DebugSnapshot {
             }
             // Benvenuto
             do {
-                let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: 620, height: 520), styleMask: [.borderless], backing: .buffered, defer: false)
+                let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: 640, height: 640), styleMask: [.borderless], backing: .buffered, defer: false)
                 window.appearance = NSAppearance(named: .darkAqua)
                 window.contentView = NSHostingView(rootView: OnboardingView().environment(controller))
                 window.orderFrontRegardless()
@@ -102,6 +102,19 @@ enum DebugSnapshot {
                 if let view = window.contentView, let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
                     view.cacheDisplay(in: view.bounds, to: rep)
                     try? rep.representation(using: .png, properties: [:])?.write(to: dir.appending(path: "onboarding.png"))
+                }
+                window.orderOut(nil)
+            }
+            // Impostazioni
+            for section in [SettingsView.Section.general, .model, .data] {
+                let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: 780, height: 560), styleMask: [.borderless], backing: .buffered, defer: false)
+                window.appearance = NSAppearance(named: .darkAqua)
+                window.contentView = NSHostingView(rootView: SettingsView(initialSection: section).environment(controller).modelContainer(container))
+                window.orderFrontRegardless()
+                try? await Task.sleep(for: .seconds(1.2))
+                if let view = window.contentView, let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
+                    view.cacheDisplay(in: view.bounds, to: rep)
+                    try? rep.representation(using: .png, properties: [:])?.write(to: dir.appending(path: "settings-\(section.rawValue).png"))
                 }
                 window.orderOut(nil)
             }

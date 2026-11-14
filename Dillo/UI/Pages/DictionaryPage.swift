@@ -37,7 +37,7 @@ struct DictionaryPage: View {
                                 .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
                             Spacer(minLength: 12)
                             Button("Aggiungi", systemImage: "plus", action: add)
-                                .buttonStyle(.borderedProminent)
+                                .buttonStyle(.primary)
                                 .keyboardShortcut(.defaultAction)
                                 .disabled(term.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
@@ -116,7 +116,7 @@ private struct DictionaryFields: View {
         VStack(alignment: .leading, spacing: 7) {
             Text(title).font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.85))
             TextField(prompt, text: text)
-                .textFieldStyle(.roundedBorder).controlSize(.large)
+                .textFieldStyle(.dillo)
                 .accessibilityLabel(title)
             Text(example).font(.system(size: 11.5)).foregroundStyle(Theme.textSecondary)
         }
@@ -147,7 +147,7 @@ private struct DictionaryEditor: View {
                 Spacer()
                 Button("Annulla") { dismiss() }.keyboardShortcut(.cancelAction)
                 Button("Salva modifiche", action: save)
-                    .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                    .buttonStyle(.primary).keyboardShortcut(.defaultAction)
                     .disabled(term.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }

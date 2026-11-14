@@ -47,6 +47,8 @@ struct MainView: View {
                     case .dictionary: DictionaryPage()
                     }
                 }
+                // Su schermi grandi il contenuto resta a una larghezza di lettura comoda, centrato.
+                .frame(maxWidth: 1120)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Theme.stroke))
@@ -69,6 +71,7 @@ struct MainView: View {
 }
 
 struct IconRail: View {
+    @Environment(\.openWindow) private var openWindow
     @Binding var page: Page
     var expanded: Bool
     var canExpand: Bool
@@ -92,6 +95,11 @@ struct IconRail: View {
                 .accessibilityAddTraits(page == p ? .isSelected : [])
             }
             Spacer()
+            Button { openWindow(id: "onboarding") } label: {
+                railLabel(symbol: "questionmark.circle", title: "Guida", selected: false)
+            }
+            .buttonStyle(.plain).help("Guida introduttiva")
+            .accessibilityLabel("Guida introduttiva")
             SettingsLink { railLabel(symbol: "gearshape", title: "Impostazioni", selected: false) }
                 .buttonStyle(.plain).help("Impostazioni (⌘,)")
                 .accessibilityLabel("Impostazioni")

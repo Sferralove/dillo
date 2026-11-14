@@ -93,9 +93,13 @@ Nomi, sigle, marchi e termini tecnici. Le parole vengono **suggerite al riconosc
 - **Guida introduttiva** al primo avvio, con i permessi spiegati e una dettatura di prova.
 - **Controllo dei dati**: conservazione della cronologia, esportazione ed eliminazione.
 
-| Cronologia | Dizionario | Benvenuto |
-|---|---|---|
-| ![Cronologia delle trascrizioni raggruppate per giorno](docs/screenshots/history.png) | ![Dizionario con parole e varianti](docs/screenshots/dictionary.png) | ![Schermata di benvenuto con il pettirosso](docs/screenshots/onboarding.png) |
+| Cronologia | Dizionario |
+|---|---|
+| ![Cronologia delle trascrizioni raggruppate per giorno](docs/screenshots/history.png) | ![Dizionario con parole e varianti](docs/screenshots/dictionary.png) |
+
+| Benvenuto | Impostazioni |
+|---|---|
+| ![Schermata di benvenuto con il pettirosso](docs/screenshots/onboarding.png) | ![Impostazioni a sezioni](docs/screenshots/settings.png) |
 
 ## Requisiti
 

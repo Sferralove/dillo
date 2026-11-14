@@ -91,68 +91,64 @@ struct DictationPill: View {
     @Environment(DictationController.self) private var controller
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 5) {
-            HStack(spacing: 10) {
-                Button {
-                    controller.state.isError ? controller.dismissError() : controller.toggleFromApp()
-                } label: {
-                    Label(actionTitle, systemImage: controller.isRecording ? "stop.fill" : (controller.state.isError ? "arrow.clockwise" : "mic.fill"))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(controller.isRecording ? Color.white : Theme.coral)
-                        .padding(.horizontal, 12)
-                        .frame(height: 32)
-                        .background(Theme.coral.opacity(controller.isRecording ? 1 : 0.15), in: Capsule())
+        HStack(spacing: 12) {
+            if controller.isRecording, let started = controller.recordingStartedAt {
+                LevelMeter(level: controller.level, active: true, bars: 14, barWidth: 2.5, spacing: 2.5, maxHeight: 18)
+                TimelineView(.periodic(from: started, by: 1)) { ctx in
+                    Text(Duration.seconds(ctx.date.timeIntervalSince(started)).formatted(.time(pattern: .minuteSecond)))
+                        .font(.system(size: 12.5, weight: .semibold).monospacedDigit())
+                        .foregroundStyle(Theme.coral)
                 }
-                .buttonStyle(.plain)
-                .disabled(!(controller.isReady || controller.isRecording || controller.state.isError))
-                .help("Clic o ⌘R: avvia e interrompi; il testo viene salvato nella cronologia.")
-                .accessibilityLabel(actionTitle)
-
-                if controller.isRecording, let started = controller.recordingStartedAt {
-                    LevelMeter(level: controller.level, active: true, bars: 10, barWidth: 2, spacing: 2, maxHeight: 16)
-                    TimelineView(.periodic(from: started, by: 1)) { ctx in
-                        Text(Duration.seconds(ctx.date.timeIntervalSince(started)).formatted(.time(pattern: .minuteSecond)))
-                            .foregroundStyle(Theme.coral)
-                    }
-                } else {
-                    if controller.state == .transcribing || controller.state == .loadingModel || isDownloading {
-                        ProgressView().controlSize(.mini)
-                    }
-                    Text(stateLabel).foregroundStyle(Theme.textSecondary)
+            } else if controller.isReady {
+                HStack(spacing: 7) {
+                    Text(controller.hotkeyMode == .hold ? "Tieni premuto" : "Premi")
+                    KeyCap(label: controller.hotkeyKey.glyph, size: 22)
+                    Text("ovunque")
                 }
-            }
-            .font(.system(size: 11.5, weight: .medium).monospacedDigit())
-            .padding(.leading, 4).padding(.trailing, 12)
-            .frame(height: 40)
-            .background(Color.white.opacity(0.04), in: Capsule())
-            .overlay(Capsule().strokeBorder(controller.isRecording ? Theme.coral.opacity(0.45) : Theme.stroke))
-
-            Text(controller.hotkeyMode == .hold
-                 ? "Nelle altre app: tieni premuto \(controller.hotkeyKey.glyph)"
-                 : "Nelle altre app: premi \(controller.hotkeyKey.glyph) per iniziare / fermare")
-                .font(.system(size: 10.5))
+                .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
+            } else {
+                HStack(spacing: 7) {
+                    if !controller.state.isError { ProgressView().controlSize(.small) }
+                    Text(stateLabel)
+                }
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(controller.state.isError ? Theme.coral : Theme.textSecondary)
+            }
+
+            Button {
+                controller.state.isError ? controller.dismissError() : controller.toggleFromApp()
+            } label: {
+                Image(systemName: controller.isRecording ? "stop.fill" : (controller.state.isError ? "arrow.clockwise" : "mic.fill"))
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(controller.isRecording ? .white : Theme.coral)
+                    .frame(width: 36, height: 36)
+                    .background(controller.isRecording ? Theme.coral : Theme.coral.opacity(0.14), in: Circle())
+                    .overlay(Circle().strokeBorder(Theme.coral.opacity(controller.isRecording ? 0 : 0.35)))
+                    .shadow(color: Theme.coral.opacity(controller.isRecording ? 0.5 : 0), radius: 10)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .disabled(!(controller.isReady || controller.isRecording || controller.state.isError))
+            .help(controller.isRecording ? "Interrompi (⌘R)" : "Detta qui: il testo va nella cronologia (⌘R)")
+            .accessibilityLabel(controller.isRecording ? "Interrompi dettatura" : "Avvia dettatura")
         }
-        .fixedSize(horizontal: true, vertical: false)
+        .padding(.leading, 16)
+        .padding(.trailing, 5)
+        .frame(height: 46)
+        .background(Color.white.opacity(controller.isRecording ? 0.06 : 0.035), in: Capsule())
+        .overlay(Capsule().strokeBorder(controller.isRecording ? Theme.coral.opacity(0.45) : Theme.stroke))
+        .fixedSize()
+        .animation(.snappy(duration: 0.25), value: controller.isRecording)
     }
 
-    private var actionTitle: String {
-        if controller.isRecording { return "Interrompi" }
-        if controller.state.isError { return "Riprova" }
-        return "Detta"
-    }
-    private var isDownloading: Bool {
-        if case .downloading = controller.state { return true }
-        return false
-    }
     private var stateLabel: String {
         switch controller.state {
-        case .idle: "Pronto"
-        case .downloading(let p): "Download · \(Int(p * 100))%"
-        case .loadingModel: "Avvio…"
+        case .downloading(let p): "Scarico il modello · \(Int(p * 100))%"
+        case .loadingModel: "Preparo il motore…"
         case .transcribing: "Trascrivo…"
-        case .recording: "Ti ascolto"
-        case .error: "Errore"
+        case .error: "Errore · riprova"
+        default: ""
         }
     }
 }
@@ -222,7 +218,7 @@ struct Banner: View {
             Image(systemName: symbol).foregroundStyle(Theme.coral)
             Text(text).font(.system(size: 12.5)).foregroundStyle(.white.opacity(0.85))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Button(action.0, action: action.1).buttonStyle(.borderedProminent).controlSize(.small)
+            Button(action.0, action: action.1).buttonStyle(.primary)
         }
         .padding(12)
         .background(Theme.coral.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -244,9 +240,9 @@ struct LanguageBanner: View {
                     .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Button("Non ora") { controller.dismissLanguageSuggestion() }.controlSize(.small)
+            Button("Non ora") { controller.dismissLanguageSuggestion() }.buttonStyle(.secondary)
             Button("Passa a \(language.name)") { controller.acceptLanguageSuggestion() }
-                .buttonStyle(.borderedProminent).controlSize(.small)
+                .buttonStyle(.primary)
         }
         .padding(12)
         .background(Theme.coral.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
