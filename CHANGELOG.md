@@ -7,6 +7,10 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 
 ## [Non ancora rilasciato]
 
+## [1.2.0] — 2026-11-15
+
+Anteprima: il DMG non è ancora notarizzato da Apple.
+
 ### Modificato
 - Il tasto di dettatura si può usare ancora per scrivere: se insieme a ⌥ premi un altro tasto (⌥ò per @, ⌥à per #…),
   la dettatura viene annullata senza suoni né indicatore. Anche i tocchi più brevi di un quarto di secondo vengono ignorati.
@@ -69,6 +73,7 @@ Prima versione (non distribuita).
 - Pettirosso animato nella barra dei menu e guida introduttiva al primo avvio.
 - Impostazioni per conservazione, esportazione ed eliminazione dei dati.
 
-[Non ancora rilasciato]: https://github.com/Sferralove/dillo/compare/v1.1.0...HEAD
+[Non ancora rilasciato]: https://github.com/Sferralove/dillo/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Sferralove/dillo/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Sferralove/dillo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Sferralove/dillo/releases/tag/v1.0.0
