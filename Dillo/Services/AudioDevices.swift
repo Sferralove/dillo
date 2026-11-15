@@ -2,14 +2,14 @@ import CoreAudio
 import Foundation
 
 /// Dispositivi di ingresso audio del sistema (inclusi quelli virtuali come Krisp o BlackHole).
-struct AudioInputDevice: Identifiable, Hashable, Sendable {
+nonisolated struct AudioInputDevice: Identifiable, Hashable, Sendable {
     let id: AudioDeviceID
     let uid: String
     let name: String
     let isVirtual: Bool
 }
 
-enum AudioDevices {
+nonisolated enum AudioDevices {
     static func inputs() -> [AudioInputDevice] {
         var addr = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices,
                                               mScope: kAudioObjectPropertyScopeGlobal,
@@ -20,6 +20,7 @@ enum AudioDevices {
         guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &ids) == noErr else { return [] }
         return ids.compactMap { id in
             guard inputChannels(id) > 0, let uid = string(id, kAudioDevicePropertyDeviceUID),
+                  !isPrivateAggregate(uid: uid),
                   let name = string(id, kAudioObjectPropertyName) else { return nil }
             let transport = uint32(id, kAudioDevicePropertyTransportType) ?? 0
             let virtual = transport == kAudioDeviceTransportTypeVirtual || transport == kAudioDeviceTransportTypeAggregate
@@ -29,6 +30,18 @@ enum AudioDevices {
     }
 
     static func device(uid: String) -> AudioInputDevice? { inputs().first { $0.uid == uid } }
+
+    /// Dispositivi aggregati che CoreAudio crea da sé dentro un processo (es. `CADefaultDeviceAggregate-<pid>-<n>`,
+    /// generato da AVAudioEngine): non sono microfoni veri e cambiano a ogni avvio, quindi non vanno proposti.
+    static func isPrivateAggregate(uid: String) -> Bool {
+        uid.hasPrefix("CADefaultDeviceAggregate")
+    }
+
+    /// Chiama `handler` sul main thread quando si collega o scollega un dispositivo o cambia il microfono predefinito.
+    /// Restituisce un oggetto da tenere in vita finché serve l'ascolto.
+    static func observeChanges(_ handler: @escaping @MainActor @Sendable () -> Void) -> AnyObject {
+        DeviceChangeObserver(handler)
+    }
 
     /// Microfono predefinito di sistema in questo momento (cambia, ad esempio, quando colleghi le AirPods).
     static var defaultInputID: AudioDeviceID? {
@@ -73,5 +86,30 @@ enum AudioDevices {
         var size = UInt32(MemoryLayout<UInt32>.size)
         guard AudioObjectGetPropertyData(id, &addr, 0, nil, &size, &value) == noErr else { return nil }
         return value
+    }
+}
+
+/// Ascolta le proprietà di sistema di CoreAudio (elenco dispositivi e ingresso predefinito).
+/// `@unchecked Sendable`: tutte le proprietà sono costanti dopo `init`, e il blocco salta sul main actor.
+private nonisolated final class DeviceChangeObserver: @unchecked Sendable {
+    private var addresses: [AudioObjectPropertyAddress] = [
+        .init(mSelector: kAudioHardwarePropertyDevices, mScope: kAudioObjectPropertyScopeGlobal,
+              mElement: kAudioObjectPropertyElementMain),
+        .init(mSelector: kAudioHardwarePropertyDefaultInputDevice, mScope: kAudioObjectPropertyScopeGlobal,
+              mElement: kAudioObjectPropertyElementMain),
+    ]
+    private let block: AudioObjectPropertyListenerBlock
+
+    init(_ handler: @escaping @MainActor @Sendable () -> Void) {
+        block = { _, _ in Task { @MainActor in handler() } }
+        for i in addresses.indices {
+            AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &addresses[i], .main, block)
+        }
+    }
+
+    deinit {
+        for i in addresses.indices {
+            AudioObjectRemovePropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &addresses[i], .main, block)
+        }
     }
 }

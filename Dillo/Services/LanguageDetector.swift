@@ -1,7 +1,7 @@
 import NaturalLanguage
 
 /// Riconosce la lingua del testo trascritto (on-device, NaturalLanguage).
-enum LanguageDetector {
+nonisolated enum LanguageDetector {
     static let supported: Set<String> = ["it", "en", "es", "fr", "de", "pt"]
 
     /// Restituisce il codice della lingua dominante solo se il riconoscimento è molto sicuro.

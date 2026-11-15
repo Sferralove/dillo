@@ -35,7 +35,7 @@ enum HistoryExporter {
         }
     }
 
-    @MainActor static func export(_ items: [Transcript], as format: Format) {
+    static func export(_ items: [Transcript], as format: Format) {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [format.type]
         panel.nameFieldStringValue = "Dillo cronologia \(Date.now.formatted(.iso8601.year().month().day())).\(format == .markdown ? "md" : "csv")"

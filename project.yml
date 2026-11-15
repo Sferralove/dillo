@@ -7,6 +7,9 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    # Swift 6.2: il codice è sul main actor salvo dove dichiarato diversamente (nonisolated, @concurrent).
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
     MACOSX_DEPLOYMENT_TARGET: "26.0"
     MARKETING_VERSION: "1.1.0"
     CURRENT_PROJECT_VERSION: "2"

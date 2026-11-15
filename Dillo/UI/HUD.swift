@@ -2,7 +2,6 @@ import AppKit
 import SwiftUI
 
 /// Pannello flottante in basso al centro, non ruba il focus all'app in cui stai scrivendo.
-@MainActor
 final class HUDController {
     private let panel: NSPanel
     private unowned let controller: DictationController

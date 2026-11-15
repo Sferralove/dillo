@@ -1,12 +1,12 @@
 import AVFoundation
 
-enum ModelLoadPhase: Sendable {
+nonisolated enum ModelLoadPhase: Sendable {
     case downloading(Double)   // 0...1
     case loading
 }
 
 /// Un motore di trascrizione in streaming: riceve l'audio mentre parli e restituisce il testo finale al rilascio.
-protocol SpeechEngine: AnyObject, Sendable {
+nonisolated protocol SpeechEngine: AnyObject, Sendable {
     var displayName: String { get }
     func prepare(onPhase: @escaping @Sendable (ModelLoadPhase) -> Void) async throws
     func begin(vocabulary: [String], onPartial: @escaping @Sendable (String) -> Void)
@@ -15,7 +15,7 @@ protocol SpeechEngine: AnyObject, Sendable {
 }
 
 /// Converte i buffer del microfono in un formato di destinazione, riusando il convertitore.
-final class PCMConverter: @unchecked Sendable {
+nonisolated final class PCMConverter: @unchecked Sendable {
     let target: AVAudioFormat
     private var converter: AVAudioConverter?
 
@@ -39,7 +39,7 @@ final class PCMConverter: @unchecked Sendable {
 
 /// Fornisce un solo buffer al convertitore, poi segnala "nessun dato".
 /// `@unchecked Sendable` è sicuro: l'istanza vive solo per la durata di una chiamata sincrona a `convert`.
-private final class OneShotInput: @unchecked Sendable {
+private nonisolated final class OneShotInput: @unchecked Sendable {
     private let buffer: AVAudioPCMBuffer
     private var fed = false
 

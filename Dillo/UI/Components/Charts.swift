@@ -41,7 +41,7 @@ struct SpeedGauge: View {
         .animation(.spring(duration: 0.8), value: wpm)
     }
 
-    private struct Arc: Shape {
+    private nonisolated struct Arc: Shape {
         func path(in rect: CGRect) -> Path {
             var p = Path()
             p.addArc(center: CGPoint(x: rect.midX, y: rect.maxY), radius: rect.width / 2 - 8,

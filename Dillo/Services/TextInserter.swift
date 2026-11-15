@@ -9,7 +9,6 @@ enum InsertResult { case pasted, copiedOnly }
 /// Inserisce testo nell'app in primo piano: clipboard + ⌘V sintetico, poi ripristina la clipboard.
 /// Senza permesso Accessibilità macOS scarta in silenzio gli eventi sintetici:
 /// in quel caso il testo resta negli appunti e lo segnaliamo.
-@MainActor
 final class TextInserter {
     func insert(_ text: String) async -> InsertResult {
         let pb = NSPasteboard.general

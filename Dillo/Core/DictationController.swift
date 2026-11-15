@@ -57,6 +57,10 @@ final class DictationController {
     private(set) var micSilent = false
     /// Lingua diversa rilevata nelle ultime dettature, da proporre all'utente.
     private(set) var languageSuggestion: SpeechLanguage?
+    /// Microfoni disponibili, aggiornati quando si collega o scollega un dispositivo.
+    private(set) var inputDevices: [AudioInputDevice] = []
+    /// Nome del microfono predefinito di sistema in questo momento.
+    private(set) var defaultInputName: String?
     var errorMessage: String? { if case .error(let m) = state { m } else { nil } }
 
     // Preferenze (persistite in UserDefaults)
@@ -101,6 +105,18 @@ final class DictationController {
     private var silenceTask: Task<Void, Never>?
     private var detectedLanguage: (code: String, hits: Int)?
     private var dismissedLanguages: Set<String> = []
+    private var deviceObserver: AnyObject?
+    /// La dettatura dal tasto non è ancora "confermata": suono e indicatore arrivano dopo un attimo,
+    /// così una combinazione come ⌥ò (@) non fa partire nulla di visibile.
+    private var confirmTask: Task<Void, Never>?
+    private var vocabularyCache: (signature: [VocabularyEntry], compiled: CompiledVocabulary)?
+
+    /// Pressioni del tasto più brevi di così sono considerate un tocco involontario.
+    private static let minimumHold: Duration = .milliseconds(250)
+    /// Ritardo prima di suono e indicatore quando la dettatura parte dal tasto tenuto premuto.
+    private static let confirmDelay: Duration = .milliseconds(180)
+    /// Entro quanto tempo dalla pressione un altro tasto trasforma la dettatura in una combinazione.
+    private static let chordWindow: TimeInterval = 1
 
     init(container: ModelContainer, startServices: Bool = true) {
         self.container = container
@@ -132,19 +148,34 @@ final class DictationController {
         }
         hotkey.key = hotkeyKey
         hotkey.onPress = { [weak self] in self?.hotkeyPressed() }
-        hotkey.onRelease = { [weak self] in self?.hotkeyReleased() }
+        hotkey.onRelease = { [weak self] held, chorded in self?.hotkeyReleased(heldFor: held, chorded: chorded) }
+        hotkey.onChord = { [weak self] in self?.hotkeyChorded() }
         hotkey.onCancel = { [weak self] in self?.cancel() }
+        refreshInputDevices()
         guard startServices else { state = .idle; return }
+        deviceObserver = AudioDevices.observeChanges { [weak self] in
+            self?.refreshInputDevices()
+            self?.recorder.invalidate()
+        }
         hotkey.start()
         loadEngine()
         pruneHistory()
         Task { [weak self] in
             while let self {
-                self.axGranted = AXIsProcessTrusted()
-                self.micGranted = Permissions.microphoneGranted
+                // Assegna solo se cambia: ogni assegnazione notifica le viste che osservano il valore.
+                let ax = AXIsProcessTrusted(), mic = Permissions.microphoneGranted
+                if self.axGranted != ax { self.axGranted = ax }
+                if self.micGranted != mic { self.micGranted = mic }
                 try? await Task.sleep(for: .seconds(2))
             }
         }
+    }
+
+    private func refreshInputDevices() {
+        let devices = AudioDevices.inputs()
+        if devices != inputDevices { inputDevices = devices }
+        let name = AudioDevices.defaultInputName
+        if name != defaultInputName { defaultInputName = name }
     }
 
     /// Sotto questa soglia (≈ -48 dB) consideriamo il microfono muto.
@@ -245,14 +276,28 @@ final class DictationController {
     // MARK: - Hotkey
 
     private func hotkeyPressed() {
+        // In modalità "premi per avviare" si agisce al rilascio, quando sappiamo che non era una combinazione.
+        if hotkeyMode == .hold { start(from: .hotkey) }
+    }
+
+    private func hotkeyReleased(heldFor held: Duration, chorded: Bool) {
         switch hotkeyMode {
-        case .hold: start(from: .hotkey)
-        case .toggle: isRecording ? stop() : start(from: .hotkey)
+        case .hold:
+            guard source == .hotkey else { return }
+            // Se una combinazione l'ha già annullata, stop() e cancel() non fanno nulla.
+            if held < Self.minimumHold { cancel(silently: true) } else { stop() }
+        case .toggle:
+            guard !chorded else { return }
+            isRecording ? stop() : start(from: .hotkey)
         }
     }
 
-    private func hotkeyReleased() {
-        if hotkeyMode == .hold { stop() }
+    /// Il tasto di dettatura è stato usato per scrivere (es. ⌥ò → @): non era una dettatura.
+    private func hotkeyChorded() {
+        guard hotkeyMode == .hold, source == .hotkey, let started = recordingStartedAt else { return }
+        // Solo nel primo secondo: un tasto sfiorato a metà di una dettatura lunga non deve buttarla via.
+        guard Date.now.timeIntervalSince(started) < Self.chordWindow else { return }
+        cancel(silently: true)
     }
 
     func toggleFromApp() {
@@ -282,15 +327,32 @@ final class DictationController {
             state = .recording
             hotkey.isRecording = true
             startSilenceWatch()
-            sound("Tink")
         } catch {
             state = .error(error.localizedDescription)
+            hud?.update()
+            return
         }
+        confirmTask?.cancel()
+        if source == .hotkey && hotkeyMode == .hold {
+            confirmTask = Task { [weak self] in
+                try? await Task.sleep(for: Self.confirmDelay)
+                guard let self, !Task.isCancelled, self.isRecording else { return }
+                self.confirmStart()
+            }
+        } else {
+            confirmStart()
+        }
+    }
+
+    private func confirmStart() {
+        confirmTask = nil
+        sound("Tink")
         hud?.update()
     }
 
     func stop() {
         guard state == .recording else { return }
+        if confirmTask != nil { confirmTask?.cancel(); confirmStart() }
         let released = ContinuousClock.now
         let duration = recordingStartedAt.map { Date.now.timeIntervalSince($0) } ?? 0
         recorder.stop()
@@ -309,7 +371,7 @@ final class DictationController {
         Task {
             do {
                 let raw = try await engine.finish()
-                let (text, corrections) = VocabularyProcessor.apply(raw, entries: vocabulary())
+                let (text, corrections) = compiledVocabulary().apply(raw)
                 let latency = ContinuousClock.now - released
                 lastLatency = latency
                 partialText = ""
@@ -349,9 +411,22 @@ final class DictationController {
         return entries.map { VocabularyEntry(term: $0.term, variants: $0.variantList) }
     }
 
+    /// Dizionario con le espressioni regolari già compilate: si ricompila solo quando il dizionario cambia.
+    private func compiledVocabulary() -> CompiledVocabulary {
+        let entries = vocabulary()
+        if let cache = vocabularyCache, cache.signature == entries { return cache.compiled }
+        let compiled = CompiledVocabulary(entries)
+        vocabularyCache = (entries, compiled)
+        return compiled
+    }
+
     /// Annulla la dettatura in corso (Esc): nessun testo viene incollato né salvato.
-    func cancel() {
+    /// `silently`: per i tocchi involontari e le combinazioni di tasti, senza avvisi.
+    func cancel(silently: Bool = false) {
         guard state == .recording else { return }
+        let wasVisible = confirmTask == nil
+        confirmTask?.cancel()
+        confirmTask = nil
         recorder.stop()
         recorder.onBuffer = nil
         hotkey.isRecording = false
@@ -360,7 +435,7 @@ final class DictationController {
         recordingStartedAt = nil
         level = 0
         partialText = ""
-        notice = "Dettatura annullata."
+        if !silently { notice = "Dettatura annullata." }
         let engine = self.engine
         state = .transcribing
         Task {
@@ -368,7 +443,7 @@ final class DictationController {
             state = .idle
             hud?.update()
         }
-        hud?.update()
+        if wasVisible { hud?.update() }
     }
 
     private func sound(_ name: String) {

@@ -7,6 +7,21 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 
 ## [Non ancora rilasciato]
 
+### Modificato
+- Il tasto di dettatura si può usare ancora per scrivere: se insieme a ⌥ premi un altro tasto (⌥ò per @, ⌥à per #…),
+  la dettatura viene annullata senza suoni né indicatore. Anche i tocchi più brevi di un quarto di secondo vengono ignorati.
+- In modalità «premi per avviare e fermare» la dettatura parte al rilascio del tasto, così le combinazioni non la attivano.
+- Il motore audio viene riusato tra una dettatura e l'altra finché il microfono non cambia: l'avvio è più rapido.
+- L'elenco dei microfoni si aggiorna da solo quando colleghi o scolleghi un dispositivo.
+- Panoramica e Dizionario non ricalcolano più le statistiche sull'intera cronologia a ogni aggiornamento.
+- Il dizionario viene compilato una sola volta e ricompilato solo quando cambia.
+- Il codice adotta l'isolamento predefinito sul main actor di Swift 6.2; la CI usa le versioni più recenti delle azioni GitHub.
+
+### Corretto
+- Nelle Impostazioni non si poteva scegliere un microfono diverso da quello predefinito: le voci del menu apparivano disattivate.
+- Dall'elenco dei microfoni sparisce il dispositivo interno «CADefaultDeviceAggregate», che non è un microfono vero.
+- Lettura dei callback audio protetta da un lock: niente più accessi concorrenti tra il thread audio e l'interfaccia.
+
 ## [1.1.0] — 2026-11-14
 
 Prima versione pubblica, come anteprima: il DMG non è ancora notarizzato da Apple.

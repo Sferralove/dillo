@@ -20,7 +20,7 @@ enum DebugSnapshot {
     }
 
     /// `-trafficLights`: stampa la posizione dei pulsanti della finestra (per allineare la UI della barra del titolo).
-    @MainActor static func logTrafficLights() {
+    static func logTrafficLights() {
         guard CommandLine.arguments.contains("-trafficLights") else { return }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(3))
@@ -36,7 +36,7 @@ enum DebugSnapshot {
         }
     }
 
-    @MainActor static func seed(_ context: ModelContext) {
+    static func seed(_ context: ModelContext) {
         let cal = Calendar.current
         let samples = [
             ("Ciao Marco, ti confermo la riunione di domani alle dieci. Porto io le slide aggiornate con i numeri del trimestre.", "Mail", "com.apple.mail"),
@@ -66,7 +66,7 @@ enum DebugSnapshot {
     }
 
     /// Renderizza ogni pagina in una finestra fuori schermo (non dipende dalle scene SwiftUI).
-    @MainActor static func renderAll(controller: DictationController, container: ModelContainer) {
+    static func renderAll(controller: DictationController, container: ModelContainer) {
         guard let dir = snapshotDir else { return }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(2))

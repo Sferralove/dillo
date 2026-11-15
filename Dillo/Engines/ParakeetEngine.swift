@@ -4,7 +4,7 @@ import FluidAudio
 /// Parakeet TDT 0.6B v3 (NVIDIA) via FluidAudio, su Neural Engine.
 /// Non è in streaming nativo: accumula l'audio, aggiorna l'anteprima sugli ultimi secondi
 /// e al rilascio trascrive tutto (≈ 100x tempo reale su M4, quindi resta molto rapido).
-final class ParakeetEngine: SpeechEngine, @unchecked Sendable {
+nonisolated final class ParakeetEngine: SpeechEngine, @unchecked Sendable {
     var displayName: String { "Parakeet v3" }
     private let language: Language?
     private var manager: AsrManager?
@@ -94,7 +94,7 @@ final class ParakeetEngine: SpeechEngine, @unchecked Sendable {
 }
 
 /// Modello Parakeet su disco (cache di FluidAudio).
-enum ParakeetStorage {
+nonisolated enum ParakeetStorage {
     static var directory: URL { AsrModels.defaultCacheDirectory(for: .v3) }
 
     static func size() -> Int64? {

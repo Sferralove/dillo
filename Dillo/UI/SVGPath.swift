@@ -3,7 +3,7 @@ import Foundation
 
 /// Parser minimo per l'attributo `d` dei tracciati SVG (M L H V C S Q Z, assoluti e relativi).
 /// Serve a usare i vettoriali esportati da Affinity senza librerie esterne.
-enum SVGPath {
+nonisolated enum SVGPath {
     static func parse(_ d: String) -> CGPath {
         let path = CGMutablePath()
         var tokens = tokenize(d)[...]

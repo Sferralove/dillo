@@ -38,4 +38,18 @@ struct VocabularyTests {
         #expect(DictionaryEntry.normalizedVariants(" , ") == "")
     }
 
+    @Test func dizionarioCompilatoRiusabile() {
+        let compiled = CompiledVocabulary(entries)
+        #expect(compiled.apply("cloud code").text == "Claude Code")
+        #expect(compiled.apply("swift ui e clod code") == ("SwiftUI e Claude Code", 2))
+    }
+}
+
+@Suite("Microfoni")
+struct AudioDevicesTests {
+    @Test func escludeGliAggregatiPrivatiDiCoreAudio() {
+        #expect(AudioDevices.isPrivateAggregate(uid: "CADefaultDeviceAggregate-38637-22"))
+        #expect(!AudioDevices.isPrivateAggregate(uid: "BlackHole2ch_UID"))
+        #expect(!AudioDevices.isPrivateAggregate(uid: "BuiltInMicrophoneDevice"))
+    }
 }

@@ -2,7 +2,7 @@ import AppKit
 
 /// Pannello "Informazioni su Dillo" con versione e crediti di terze parti (richiesti dalle licenze).
 enum AboutPanel {
-    @MainActor static func show() {
+    static func show() {
         let credits = NSMutableAttributedString()
         let body: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor]
         let bold: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 11, weight: .semibold), .foregroundColor: NSColor.labelColor]

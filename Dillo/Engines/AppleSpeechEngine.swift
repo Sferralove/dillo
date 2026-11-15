@@ -3,7 +3,7 @@ import Speech
 
 /// Motore nativo di macOS 26 (SpeechAnalyzer + SpeechTranscriber), in streaming.
 /// Il modello della lingua lo scarica e lo gestisce macOS.
-final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
+nonisolated final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     let locale: Locale
     var displayName: String { "Apple Speech" }
     private var analyzerFormat: AVAudioFormat?

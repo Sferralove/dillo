@@ -8,7 +8,32 @@ struct OverviewPage: View {
 
     enum Tab: String, CaseIterable { case usage = "Il tuo utilizzo", voice = "La tua voce" }
 
-    private var stats: UsageStats { UsageStats(transcripts: transcripts) }
+    /// Statistiche in cache: si ricalcolano solo quando cambia la cronologia (o il giorno), non a ogni aggiornamento della vista.
+    @State private var cache = StatsCache()
+
+    private final class StatsCache {
+        var key: StatsKey?
+        var value = UsageStats()
+    }
+
+    private var stats: UsageStats {
+        let key = statsKey
+        if cache.key != key {
+            cache.value = UsageStats(transcripts: transcripts)
+            cache.key = key
+        }
+        return cache.value
+    }
+
+    fileprivate struct StatsKey: Equatable {
+        let count: Int
+        let latest: Date?
+        let day: Date
+    }
+
+    private var statsKey: StatsKey {
+        StatsKey(count: transcripts.count, latest: transcripts.first?.createdAt, day: Calendar.current.startOfDay(for: .now))
+    }
 
     var body: some View {
         let stats = self.stats

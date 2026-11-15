@@ -133,14 +133,15 @@ private struct GeneralSettings: View {
                     .menuStyle(.button).buttonStyle(.secondary).fixedSize()
                 }
                 SettingsRow(title: "Microfono", detail: microphoneName) {
+                    // Voci esplicite invece di un Picker: l'elenco viene dal controller (aggiornato solo quando
+                    // cambiano i dispositivi), così il menu non viene ricostruito mentre è aperto.
                     Menu {
-                        Picker("Microfono", selection: $controller.microphoneUID) {
-                            Text("Predefinito di sistema").tag(String?.none)
-                            ForEach(AudioDevices.inputs()) { d in
-                                Text(d.isVirtual ? "\(d.name) (virtuale)" : d.name).tag(Optional(d.uid))
+                        Section("Microfono") {
+                            microphoneItem("Predefinito di sistema", uid: nil)
+                            ForEach(controller.inputDevices) { d in
+                                microphoneItem(d.isVirtual ? "\(d.name) (virtuale)" : d.name, uid: d.uid)
                             }
                         }
-                        .pickerStyle(.inline)
                     } label: { Text("Cambia") }
                     .menuStyle(.button).buttonStyle(.secondary).fixedSize()
                     .disabled(controller.isRecording)
@@ -155,7 +156,7 @@ private struct GeneralSettings: View {
                     .menuStyle(.button).buttonStyle(.secondary).fixedSize()
                 }
             }
-            if let uid = controller.microphoneUID, AudioDevices.device(uid: uid) == nil {
+            if let uid = controller.microphoneUID, !controller.inputDevices.contains(where: { $0.uid == uid }) {
                 Label("Il microfono scelto non è collegato: Dillo usa quello di sistema.", systemImage: "exclamationmark.triangle")
                     .font(.system(size: 12)).foregroundStyle(Theme.coral)
             }
@@ -178,8 +179,15 @@ private struct GeneralSettings: View {
     }
 
     private var microphoneName: String {
-        if let uid = controller.microphoneUID, let d = AudioDevices.device(uid: uid) { return d.name }
-        return "Predefinito di sistema" + (AudioDevices.defaultInputName.map { " · \($0)" } ?? "")
+        if let uid = controller.microphoneUID, let d = controller.inputDevices.first(where: { $0.uid == uid }) { return d.name }
+        return "Predefinito di sistema" + (controller.defaultInputName.map { " · \($0)" } ?? "")
+    }
+
+    private func microphoneItem(_ title: String, uid: String?) -> some View {
+        Toggle(title, isOn: Binding(
+            get: { controller.microphoneUID == uid },
+            set: { if $0 { controller.microphoneUID = uid } }
+        ))
     }
 }
 
