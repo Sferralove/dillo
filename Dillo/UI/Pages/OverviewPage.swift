@@ -60,8 +60,8 @@ struct OverviewPage: View {
     // MARK: Utilizzo
 
     private func usage(_ s: UsageStats, wide: Bool) -> some View {
-        VStack(spacing: 18) {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 18), count: wide ? 3 : 2), spacing: 18) {
+        VStack(spacing: 16) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: wide ? 3 : 2), spacing: 16) {
                 StatCard {
                     VStack(alignment: .leading, spacing: 10) {
                         BigNumber(s.totalWords)
@@ -85,7 +85,7 @@ struct OverviewPage: View {
                         BigNumber(s.wordsPerMinute)
                         Eyebrow("Parole al minuto · media")
                         SpeedGauge(wpm: s.wordsPerMinute)
-                            .frame(maxWidth: .infinity).padding(.top, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 if !wide { monthCard(s) }

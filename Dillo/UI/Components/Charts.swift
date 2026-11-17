@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Contenitore delle card della Panoramica.
 struct StatCard<Content: View>: View {
-    var padding: CGFloat = 22
+    var padding: CGFloat = 20
     @ViewBuilder var content: () -> Content
     var body: some View {
         content()
@@ -23,22 +23,22 @@ struct SpeedGauge: View {
     var body: some View {
         let progress = min(Double(wpm) / maxWPM, 1)
         ZStack {
-            Arc().stroke(Color.white.opacity(0.07), style: StrokeStyle(lineWidth: 16, lineCap: .round))
+            Arc().stroke(Color.white.opacity(0.07), style: StrokeStyle(lineWidth: 12, lineCap: .round))
             Arc().trim(from: 0, to: progress)
                 .stroke(AngularGradient(colors: [Theme.coralSoft, Theme.coral], center: .bottom,
                                         startAngle: .degrees(180), endAngle: .degrees(360)),
-                        style: StrokeStyle(lineWidth: 16, lineCap: .round))
+                        style: StrokeStyle(lineWidth: 12, lineCap: .round))
             // Tacca della velocità media di battitura
             Arc().trim(from: UsageStats.typingWPM / maxWPM - 0.004, to: UsageStats.typingWPM / maxWPM + 0.004)
-                .stroke(Color.white.opacity(0.6), style: StrokeStyle(lineWidth: 22))
+                .stroke(Color.white.opacity(0.6), style: StrokeStyle(lineWidth: 16))
             VStack(spacing: 2) {
                 Text(wpm > 0 ? String(format: "%.1f×", Double(wpm) / UsageStats.typingWPM) : "—")
-                    .font(Typo.display(26))
-                Text("la tastiera").font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
+                    .font(Typo.display(20))
+                Text("la tastiera").font(.system(size: 10)).foregroundStyle(Theme.textSecondary)
             }
-            .offset(y: 18)
+            .offset(y: 10)
         }
-        .frame(width: 190, height: 105)
+        .frame(width: 128, height: 72)
         .animation(.spring(duration: 0.8), value: wpm)
     }
 
