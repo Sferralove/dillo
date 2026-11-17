@@ -3,10 +3,7 @@ import SwiftUI
 
 struct DictionaryPage: View {
     @Environment(\.modelContext) private var context
-    @Environment(DictationController.self) private var controller
     @Query(sort: \DictionaryEntry.term) private var entries: [DictionaryEntry]
-    /// Solo le trascrizioni con correzioni: basta per il totale e non carica l'intera cronologia.
-    @Query(filter: #Predicate<Transcript> { $0.corrections > 0 }) private var corrected: [Transcript]
     @State private var search = ""
     @State private var term = ""
     @State private var variants = ""
@@ -24,7 +21,7 @@ struct DictionaryPage: View {
     var body: some View {
         VStack(spacing: 0) {
             PageHeader(title: "Dizionario",
-                       subtitle: "\(entries.count) voci · \(corrected.reduce(0) { $0 + $1.corrections }) correzioni applicate",
+                       subtitle: "\(entries.count) voci",
                        search: $search, searchPrompt: "Cerca nel dizionario")
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
@@ -32,11 +29,7 @@ struct DictionaryPage: View {
                         Text("Nuova parola").font(Typo.display(20))
                         DictionaryFields(term: $term, variants: $variants)
                         HStack(alignment: .center) {
-                            Text(controller.engineKind == .apple
-                                 ? "La parola aiuta il riconoscimento; le varianti vengono corrette nel testo."
-                                 : "Le varianti vengono sostituite con la scrittura corretta dopo la trascrizione.")
-                                .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                            Spacer(minLength: 12)
+                            Spacer()
                             Button("Aggiungi", systemImage: "plus", action: add)
                                 .buttonStyle(.primary)
                                 .keyboardShortcut(.defaultAction)
@@ -193,7 +186,6 @@ private struct EntryCard: View {
             if entry.variantList.isEmpty {
                 Text("Suggerimento al riconoscimento").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
             } else {
-                Text("Corregge queste varianti:").font(.system(size: 11.5)).foregroundStyle(Theme.textSecondary)
                 VStack(alignment: .leading, spacing: 5) {
                     ForEach(Array((expanded ? entry.variantList : Array(entry.variantList.prefix(3))).enumerated()), id: \.offset) { _, tag in
                         Text(tag).font(.system(size: 12)).foregroundStyle(.white.opacity(0.8))

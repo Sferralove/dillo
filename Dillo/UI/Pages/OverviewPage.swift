@@ -78,8 +78,6 @@ struct OverviewPage: View {
                         Eyebrow("Minuti risparmiati · stima")
                         Text("Rispetto a scrivere a tastiera, a \(Int(UsageStats.typingWPM)) parole al minuto.")
                             .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                        Text("Stima sull'intera cronologia, al netto del tempo parlato.")
-                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
                     }
                 }
                 StatCard {
@@ -105,7 +103,6 @@ struct OverviewPage: View {
                 StatCard {
                     VStack(alignment: .leading, spacing: 18) {
                         Text("Dove detti").font(Typo.display(24))
-                        Eyebrow("Intera cronologia · \(s.apps.count) app")
                         if s.apps.isEmpty {
                             EmptyHint("Detta in qualsiasi app con la scorciatoia: qui vedrai dove usi di più Dillo.")
                         } else {
@@ -127,7 +124,6 @@ struct OverviewPage: View {
                 StatCard {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Dizionario e motori").font(Typo.display(22))
-                        Eyebrow("Intera cronologia")
                         MetricRow(label: "Correzioni applicate", value: s.corrections)
                         MetricRow(label: "Voci nel dizionario", value: dictionary.count)
                         Divider().overlay(Theme.stroke)
@@ -146,8 +142,6 @@ struct OverviewPage: View {
                 Eyebrow("Parole · \(Date.now.formatted(.dateTime.month(.wide).year()))")
                 if let trend = s.monthTrend { TrendBadge(trend: trend) }
                 else { Text("Nessun confronto disponibile con il mese scorso.").font(.system(size: 12)).foregroundStyle(Theme.textSecondary) }
-                Text("Mese in corso rispetto all'intero mese precedente.")
-                    .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
             }
         }
     }

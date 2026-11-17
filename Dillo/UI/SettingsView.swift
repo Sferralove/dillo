@@ -161,7 +161,7 @@ private struct GeneralSettings: View {
                     .font(.system(size: 12)).foregroundStyle(Theme.coral)
             }
             SettingsGroup(title: "Sistema") {
-                SettingsRow(title: "Apri Dillo all'avvio del Mac", detail: "Resta pronta nella barra dei menu.") {
+                SettingsRow(title: "Apri Dillo all'avvio del Mac") {
                     Toggle("", isOn: $launchAtLogin).labelsHidden()
                         .onChange(of: launchAtLogin) { _, on in
                             do { on ? try SMAppService.mainApp.register() : try SMAppService.mainApp.unregister() }
@@ -214,13 +214,13 @@ private struct DictationSettings: View {
                 }
             }
             SettingsGroup(title: "Comportamento") {
-                SettingsRow(title: "Incolla automaticamente", detail: "Inserisce il testo dove si trova il cursore.") {
+                SettingsRow(title: "Incolla automaticamente") {
                     Toggle("", isOn: $controller.autoPaste).labelsHidden()
                 }
                 SettingsRow(title: "Indicatore flottante", detail: "Mostra la voce e le parole mentre detti.") {
                     Toggle("", isOn: $controller.showHUD).labelsHidden()
                 }
-                SettingsRow(title: "Suoni", detail: "Un tocco leggero all'inizio e alla fine.") {
+                SettingsRow(title: "Suoni") {
                     Toggle("", isOn: $controller.playSounds).labelsHidden()
                 }
             }

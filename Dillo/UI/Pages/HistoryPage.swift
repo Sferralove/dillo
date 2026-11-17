@@ -61,9 +61,6 @@ struct HistoryPage: View {
                             } header: {
                                 HStack {
                                     Eyebrow(dayTitle(group.day))
-                                    Spacer()
-                                    Text("\(group.items.reduce(0) { $0 + $1.wordCount }) parole")
-                                        .font(.system(size: 11).monospacedDigit()).foregroundStyle(Theme.textTertiary)
                                 }
                                 .padding(.vertical, 10)
                                 .background(Theme.surface)
@@ -79,8 +76,7 @@ struct HistoryPage: View {
     }
 
     private var subtitle: String {
-        let words = transcripts.reduce(0) { $0 + $1.wordCount }
-        return "\(transcripts.count) trascrizioni · \(words.formatted()) parole"
+        "\(transcripts.count) trascrizioni"
     }
 
     private func delete(_ item: Transcript) {
