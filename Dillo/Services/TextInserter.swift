@@ -4,13 +4,18 @@ import os
 
 let diagLog = Logger(subsystem: "com.angelosferra.dillo", category: "insert")
 
-enum InsertResult { case pasted, copiedOnly }
+enum InsertResult { case pasted, copiedOnly, destinationChanged }
 
 /// Inserisce testo nell'app in primo piano: clipboard + ⌘V sintetico, poi ripristina la clipboard.
 /// Senza permesso Accessibilità macOS scarta in silenzio gli eventi sintetici:
 /// in quel caso il testo resta negli appunti e lo segnaliamo.
 final class TextInserter {
-    func insert(_ text: String) async -> InsertResult {
+    static func destinationMatches(expected: pid_t?, current: pid_t?) -> Bool {
+        guard let expected, let current else { return false }
+        return expected == current
+    }
+
+    func insert(_ text: String, targetPID: pid_t?) async -> InsertResult {
         let pb = NSPasteboard.general
         let previous = pb.string(forType: .string)
         pb.clearContents()
@@ -23,6 +28,10 @@ final class TextInserter {
 
         // Lascia al sistema il tempo di registrare il rilascio di ⌥ prima del ⌘V.
         try? await Task.sleep(for: .milliseconds(60))
+
+        guard Self.destinationMatches(expected: targetPID, current: NSWorkspace.shared.frontmostApplication?.processIdentifier) else {
+            return .destinationChanged
+        }
 
         let src = CGEventSource(stateID: .hidSystemState)
         let vKey: CGKeyCode = 9

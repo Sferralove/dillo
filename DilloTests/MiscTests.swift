@@ -5,6 +5,12 @@ import Testing
 
 @Suite("Varie")
 struct MiscTests {
+    @Test func destinazioneIncollaDeveEssereLoStessoProcesso() {
+        #expect(TextInserter.destinationMatches(expected: 42, current: 42))
+        #expect(!TextInserter.destinationMatches(expected: 42, current: 43))
+        #expect(!TextInserter.destinationMatches(expected: nil, current: nil))
+        #expect(!TextInserter.destinationMatches(expected: 42, current: nil))
+    }
     @Test func tracciatoSVGRelativoEAssoluto() {
         let p = SVGPath.parse("M10,10l20,0l0,20L10,30Z")
         #expect(p.boundingBoxOfPath == CGRect(x: 10, y: 10, width: 20, height: 20))

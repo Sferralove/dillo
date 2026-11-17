@@ -101,6 +101,7 @@ final class DictationController {
     private var source: RecordingSource = .hotkey
     private var targetApp: String?
     private var targetBundleID: String?
+    private var targetPID: pid_t?
     private var peakLevel: Float = 0
     private var silenceTask: Task<Void, Never>?
     private var detectedLanguage: (code: String, hits: Int)?
@@ -309,8 +310,10 @@ final class DictationController {
     func start(from source: RecordingSource) {
         guard state == .idle else { return }
         self.source = source
-        targetApp = NSWorkspace.shared.frontmostApplication?.localizedName
-        targetBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        let target = NSWorkspace.shared.frontmostApplication
+        targetApp = target?.localizedName
+        targetBundleID = target?.bundleIdentifier
+        targetPID = target?.processIdentifier
         partialText = ""
         notice = nil
         let engine = self.engine
@@ -381,9 +384,10 @@ final class DictationController {
                     lastTranscriptID += 1
                     // Non incollare dentro Dillo stesso (es. durante l'onboarding).
                     if source == .hotkey && autoPaste && targetBundleID != Bundle.main.bundleIdentifier {
-                        switch await inserter.insert(text + " ") {
+                        switch await inserter.insert(text + " ", targetPID: targetPID) {
                         case .pasted: notice = nil
                         case .copiedOnly: notice = "Accessibilità non concessa: il testo è negli appunti, premi ⌘V."
+                        case .destinationChanged: notice = "L’app attiva è cambiata: il testo è negli appunti, premi ⌘V dove vuoi inserirlo."
                         }
                     } else if source == .app {
                         notice = "Trascrizione salvata nella cronologia."
