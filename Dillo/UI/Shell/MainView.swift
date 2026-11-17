@@ -118,6 +118,7 @@ private struct RailLabel: View {
     let symbol: String, title: String
     let selected: Bool, expanded: Bool
     @State private var hover = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 10) {
@@ -131,8 +132,12 @@ private struct RailLabel: View {
         .frame(maxWidth: .infinity)
         .background(selected ? Theme.coral.opacity(0.13) : Color.white.opacity(hover ? 0.05 : 0),
                     in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .strokeBorder(selected ? Theme.coral.opacity(0.18) : .clear))
         .contentShape(Rectangle())
         .onHover { hover = $0 }
+        .animation(reduceMotion ? nil : Theme.interaction, value: hover)
+        .animation(reduceMotion ? nil : Theme.interaction, value: selected)
     }
 }
 

@@ -9,8 +9,9 @@ struct StatCard<Content: View>: View {
         content()
             .padding(padding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Theme.cardGradient, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .background(Theme.raised.opacity(0.7), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Theme.stroke))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.white.opacity(0.09)))
     }
 }
 

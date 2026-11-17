@@ -13,6 +13,9 @@ enum Theme {
     /// Scala corallo per grafici e heatmap (dal più tenue al più intenso).
     static let coralScale: [Color] = [coral.opacity(0.18), coral.opacity(0.4), coral.opacity(0.68), coral]
     static let barGradient = LinearGradient(colors: [coralSoft, coral], startPoint: .top, endPoint: .bottom)
+    static let cardGradient = LinearGradient(colors: [Color.white.opacity(0.055), Color.white.opacity(0.015)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing)
+    static let interaction = Animation.easeOut(duration: 0.18)
 }
 
 struct CardBackground: ViewModifier {

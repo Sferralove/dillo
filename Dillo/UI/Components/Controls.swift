@@ -30,6 +30,8 @@ extension TextFieldStyle where Self == DilloTextFieldStyle {
 struct PrimaryButtonStyle: ButtonStyle {
     var large = false
     @Environment(\.isEnabled) private var enabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var hover = false
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -38,12 +40,16 @@ struct PrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, large ? 22 : 14)
             .frame(height: large ? 46 : 32)
             .frame(maxWidth: large ? .infinity : nil)
-            .background(Theme.coral.opacity(configuration.isPressed ? 0.8 : 1),
+            .background(Theme.coral.opacity(configuration.isPressed ? 0.8 : (hover ? 0.9 : 1)),
                         in: RoundedRectangle(cornerRadius: large ? 12 : 9, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: large ? 12 : 9, style: .continuous)
+                .strokeBorder(.white.opacity(0.14)))
             .shadow(color: Theme.coral.opacity(large ? 0.35 : 0), radius: 14, y: 6)
             .opacity(enabled ? 1 : 0.45)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1)
+            .onHover { hover = $0 }
+            .animation(reduceMotion ? nil : Theme.interaction, value: configuration.isPressed)
+            .animation(reduceMotion ? nil : Theme.interaction, value: hover)
     }
 }
 

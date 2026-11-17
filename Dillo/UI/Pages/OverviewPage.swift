@@ -294,12 +294,13 @@ private struct VoiceTile: View {
 struct TabStrip<T: RawRepresentable & CaseIterable & Hashable>: View where T.RawValue == String, T.AllCases: RandomAccessCollection {
     @Binding var selection: T
     @Namespace private var ns
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 28) {
                 ForEach(T.allCases, id: \.self) { item in
-                    Button { withAnimation(.snappy) { selection = item } } label: {
+                    Button { withAnimation(reduceMotion ? nil : .snappy) { selection = item } } label: {
                         VStack(spacing: 9) {
                             Text(item.rawValue)
                                 .font(.system(size: 14, weight: selection == item ? .semibold : .regular))
