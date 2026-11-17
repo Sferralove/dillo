@@ -77,12 +77,12 @@ enum DebugSnapshot {
                 let root = MainView(initialPage: page)
                     .environment(controller)
                     .modelContainer(container)
-                    .preferredColorScheme(.dark)
-                    .tint(Theme.coral)
+                    .preferredColorScheme(AppTheme.colorScheme)
+                    .tint(Theme.accent)
                     .frame(width: width, height: height)
                 let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: width, height: height),
                                       styleMask: [.borderless], backing: .buffered, defer: false)
-                window.appearance = NSAppearance(named: .darkAqua)
+                window.appearance = AppTheme.appearance
                 window.contentView = NSHostingView(rootView: root)
                 window.orderFrontRegardless()
                 try? await Task.sleep(for: .seconds(1.5))
@@ -95,7 +95,7 @@ enum DebugSnapshot {
             // Benvenuto
             do {
                 let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: 640, height: 640), styleMask: [.borderless], backing: .buffered, defer: false)
-                window.appearance = NSAppearance(named: .darkAqua)
+                window.appearance = AppTheme.appearance
                 window.contentView = NSHostingView(rootView: OnboardingView().environment(controller))
                 window.orderFrontRegardless()
                 try? await Task.sleep(for: .seconds(1.5))
@@ -108,7 +108,7 @@ enum DebugSnapshot {
             // Impostazioni
             for section in [SettingsView.Section.general, .model, .data] {
                 let window = NSWindow(contentRect: NSRect(x: -4000, y: 0, width: 780, height: 560), styleMask: [.borderless], backing: .buffered, defer: false)
-                window.appearance = NSAppearance(named: .darkAqua)
+                window.appearance = AppTheme.appearance
                 window.contentView = NSHostingView(rootView: SettingsView(initialSection: section).environment(controller).modelContainer(container))
                 window.orderFrontRegardless()
                 try? await Task.sleep(for: .seconds(1.2))

@@ -12,6 +12,7 @@ struct DilloApp: App {
     static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
     init() {
+        NSApp?.appearance = AppTheme.appearance
         let container = Self.makeContainer()
         self.container = container
         #if DEBUG
@@ -58,8 +59,8 @@ struct DilloApp: App {
             MainView()
                 .environment(controller)
                 .frame(minWidth: 760, minHeight: 600)
-                .preferredColorScheme(.dark)
-                .tint(Theme.coral)
+                .preferredColorScheme(AppTheme.colorScheme)
+                .tint(Theme.accent)
                 .modifier(FirstLaunch())
         }
         .modelContainer(container)

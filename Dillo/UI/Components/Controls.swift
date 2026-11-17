@@ -15,9 +15,9 @@ struct DilloTextFieldStyle: TextFieldStyle {
             .focused($focused)
             .padding(.horizontal, 12)
             .frame(height: height)
-            .background(Color.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+            .background(Theme.ink.opacity(0.045), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .strokeBorder(focused ? Theme.coral.opacity(0.7) : Theme.stroke, lineWidth: focused ? 1.5 : 1))
+                .strokeBorder(focused ? Theme.accent.opacity(0.7) : Theme.stroke, lineWidth: focused ? 1.5 : 1))
             .animation(.easeOut(duration: 0.15), value: focused)
     }
 }
@@ -40,11 +40,11 @@ struct PrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, large ? 22 : 14)
             .frame(height: large ? 46 : 32)
             .frame(maxWidth: large ? .infinity : nil)
-            .background(Theme.coral.opacity(configuration.isPressed ? 0.8 : (hover ? 0.9 : 1)),
+            .background(Theme.accent.opacity(configuration.isPressed ? 0.8 : (hover ? 0.9 : 1)),
                         in: RoundedRectangle(cornerRadius: large ? 12 : 9, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: large ? 12 : 9, style: .continuous)
                 .strokeBorder(.white.opacity(0.14)))
-            .shadow(color: Theme.coral.opacity(large ? 0.35 : 0), radius: 14, y: 6)
+            .shadow(color: Theme.accent.opacity(large ? 0.35 : 0), radius: 14, y: 6)
             .opacity(enabled ? 1 : 0.45)
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1)
             .onHover { hover = $0 }
@@ -61,10 +61,10 @@ struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 12.5, weight: .medium))
-            .foregroundStyle(.white.opacity(0.92))
+            .foregroundStyle(Theme.ink.opacity(0.92))
             .padding(.horizontal, 14)
             .frame(height: 30)
-            .background(Color.white.opacity(configuration.isPressed ? 0.14 : (hover ? 0.1 : 0.07)),
+            .background(Theme.ink.opacity(configuration.isPressed ? 0.14 : (hover ? 0.1 : 0.07)),
                         in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Theme.stroke))
             .opacity(enabled ? 1 : 0.45)
@@ -89,16 +89,16 @@ struct KeyCap: View {
     var body: some View {
         Text(label)
             .font(.system(size: size * 0.5, weight: .semibold, design: .rounded))
-            .foregroundStyle(accent ? .white : .white.opacity(0.85))
+            .foregroundStyle(accent ? .white : Theme.ink.opacity(0.85))
             .padding(.horizontal, size * 0.32)
             .frame(minWidth: size, minHeight: size)
             .background(
                 RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
-                    .fill(accent ? AnyShapeStyle(Theme.coral) : AnyShapeStyle(Color.white.opacity(0.08)))
+                    .fill(accent ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.ink.opacity(0.08)))
                     .shadow(color: .black.opacity(0.4), radius: 0, y: size * 0.06)
             )
             .overlay(RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
-                .strokeBorder(Color.white.opacity(accent ? 0.2 : 0.12)))
+                .strokeBorder(Theme.ink.opacity(accent ? 0.2 : 0.12)))
     }
 }
 
@@ -150,9 +150,9 @@ struct SettingsRow<Trailing: View>: View {
             if let symbol {
                 Image(systemName: symbol)
                     .font(.system(size: 14))
-                    .foregroundStyle(Theme.coral)
+                    .foregroundStyle(Theme.accent)
                     .frame(width: 30, height: 30)
-                    .background(Theme.coral.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .background(Theme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.system(size: 13.5, weight: .medium))

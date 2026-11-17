@@ -16,7 +16,7 @@ struct LevelMeter: View {
             ForEach(0..<bars, id: \.self) { i in
                 let v = i < history.count ? history[i] : 0
                 Capsule()
-                    .fill(active ? AnyShapeStyle(Theme.barGradient) : AnyShapeStyle(Color.white.opacity(0.14)))
+                    .fill(active ? AnyShapeStyle(Theme.barGradient) : AnyShapeStyle(Theme.ink.opacity(0.14)))
                     .frame(width: barWidth, height: max(3, CGFloat(v) * maxHeight))
             }
         }
