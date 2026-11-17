@@ -19,6 +19,16 @@ enum DictationState: Equatable {
 
     var isError: Bool { if case .error = self { true } else { false } }
 
+    var unavailableMessage: String? {
+        switch self {
+        case .downloading: "Modello in download. Riprova quando è pronto."
+        case .loadingModel: "Modello non ancora pronto. Riprova tra poco."
+        case .error: "Motore non disponibile. Controlla Dillo per riprovare."
+        case .transcribing: "Trascrizione in corso. Riprova tra poco."
+        case .idle, .recording: nil
+        }
+    }
+
     var title: String {
         switch self {
         case .downloading(let p): "Scarico il modello · \(Int(p * 100))%"
@@ -47,6 +57,7 @@ final class DictationController {
     private(set) var partialText = ""
     private(set) var lastLatency: Duration?
     private(set) var notice: String?
+    private(set) var hudWarning: String?
     /// Cambia a ogni nuova trascrizione salvata (per l'onboarding e per chi osserva l'ultimo risultato).
     private(set) var lastTranscriptID = 0
     private(set) var lastTranscriptText: String?
@@ -110,6 +121,8 @@ final class DictationController {
     /// La dettatura dal tasto non è ancora "confermata": suono e indicatore arrivano dopo un attimo,
     /// così una combinazione come ⌥ò (@) non fa partire nulla di visibile.
     private var confirmTask: Task<Void, Never>?
+    private var warningTask: Task<Void, Never>?
+    private var unavailableHoldTask: Task<Void, Never>?
     private var vocabularyCache: (signature: [VocabularyEntry], compiled: CompiledVocabulary)?
 
     /// Pressioni del tasto più brevi di così sono considerate un tocco involontario.
@@ -278,10 +291,21 @@ final class DictationController {
 
     private func hotkeyPressed() {
         // In modalità "premi per avviare" si agisce al rilascio, quando sappiamo che non era una combinazione.
-        if hotkeyMode == .hold { start(from: .hotkey) }
+        if hotkeyMode == .hold {
+            if state.unavailableMessage != nil {
+                unavailableHoldTask?.cancel()
+                unavailableHoldTask = Task { [weak self] in
+                    try? await Task.sleep(for: Self.minimumHold)
+                    guard !Task.isCancelled else { return }
+                    self?.showUnavailableWarning()
+                }
+            } else { start(from: .hotkey) }
+        }
     }
 
     private func hotkeyReleased(heldFor held: Duration, chorded: Bool) {
+        unavailableHoldTask?.cancel()
+        unavailableHoldTask = nil
         switch hotkeyMode {
         case .hold:
             guard source == .hotkey else { return }
@@ -295,6 +319,8 @@ final class DictationController {
 
     /// Il tasto di dettatura è stato usato per scrivere (es. ⌥ò → @): non era una dettatura.
     private func hotkeyChorded() {
+        unavailableHoldTask?.cancel()
+        unavailableHoldTask = nil
         guard hotkeyMode == .hold, source == .hotkey, let started = recordingStartedAt else { return }
         // Solo nel primo secondo: un tasto sfiorato a metà di una dettatura lunga non deve buttarla via.
         guard Date.now.timeIntervalSince(started) < Self.chordWindow else { return }
@@ -308,7 +334,9 @@ final class DictationController {
     // MARK: - Registrazione
 
     func start(from source: RecordingSource) {
-        guard state == .idle else { return }
+        guard state == .idle else { showUnavailableWarning(); return }
+        warningTask?.cancel()
+        hudWarning = nil
         self.source = source
         let target = NSWorkspace.shared.frontmostApplication
         targetApp = target?.localizedName
@@ -344,6 +372,19 @@ final class DictationController {
             }
         } else {
             confirmStart()
+        }
+    }
+
+    private func showUnavailableWarning() {
+        guard let message = state.unavailableMessage else { return }
+        hudWarning = message
+        hud?.update()
+        warningTask?.cancel()
+        warningTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled, let self else { return }
+            self.hudWarning = nil
+            self.hud?.update()
         }
     }
 

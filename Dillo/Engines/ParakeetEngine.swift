@@ -30,12 +30,17 @@ nonisolated final class ParakeetEngine: SpeechEngine, @unchecked Sendable {
         var lastError: Error?
         for attempt in 0..<3 {
             do {
-                models = try await AsrModels.downloadAndLoad(version: .v3, progressHandler: { p in
-                    onPhase(p.fractionCompleted < 1 ? .downloading(p.fractionCompleted) : .loading)
-                })
+                if !cached {
+                    _ = try await AsrModels.download(version: .v3, progressHandler: { p in
+                        onPhase(.downloading(p.fractionCompleted))
+                    })
+                }
+                onPhase(.loading)
+                models = try await AsrModels.loadFromCache(version: .v3)
                 break
             } catch {
                 lastError = error
+                if Task.isCancelled { throw CancellationError() }
                 try? await Task.sleep(for: .seconds(2 << attempt))
             }
         }

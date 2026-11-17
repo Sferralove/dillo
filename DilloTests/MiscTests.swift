@@ -5,6 +5,15 @@ import Testing
 
 @Suite("Varie")
 struct MiscTests {
+    @Test func messaggiQuandoIlMotoreNonEPronto() {
+        #expect(DictationState.loadingModel.unavailableMessage != nil)
+        #expect(DictationState.downloading(0.5).unavailableMessage?.contains("download") == true)
+        #expect(DictationState.error("errore").unavailableMessage != nil)
+        #expect(DictationState.transcribing.unavailableMessage != nil)
+        #expect(DictationState.idle.unavailableMessage == nil)
+        #expect(DictationState.recording.unavailableMessage == nil)
+    }
+
     @Test func destinazioneIncollaDeveEssereLoStessoProcesso() {
         #expect(TextInserter.destinationMatches(expected: 42, current: 42))
         #expect(!TextInserter.destinationMatches(expected: 42, current: 43))

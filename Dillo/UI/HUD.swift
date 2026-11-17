@@ -23,6 +23,7 @@ final class HUDController {
     }
 
     func update() {
+        if controller.hudWarning != nil { show(); return }
         guard controller.showHUD else { panel.orderOut(nil); return }
         switch controller.state {
         case .recording, .transcribing: show()
@@ -78,7 +79,12 @@ struct HUDView: View {
 
     @ViewBuilder private var statusRow: some View {
         HStack(spacing: 10) {
-            if controller.state == .transcribing {
+            if let warning = controller.hudWarning {
+                Image(systemName: "exclamationmark.circle.fill").foregroundStyle(Theme.coral)
+                Text(warning).font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.95))
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if controller.state == .transcribing {
                 HUDRobin(level: 0, busy: true)
                 Text("Trascrivo…").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(.white.opacity(0.9))
             } else if controller.micSilent {
@@ -96,7 +102,7 @@ struct HUDView: View {
                 .animation(.easeOut(duration: 0.08), value: history)
             }
         }
-        .frame(height: 40)
+        .frame(minHeight: 40)
     }
 }
 
