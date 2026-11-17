@@ -99,7 +99,8 @@ struct ActivityHeatmap: View {
     @State private var year = Calendar.current.component(.year, from: .now)
     @State private var hovered: Date?
     @State private var selected: Date?
-    private let gap: CGFloat = 3
+    @State private var availableWidth: CGFloat = 0
+    private let gap: CGFloat = 2
     private let labelWidth: CGFloat = 34
 
     private var currentYear: Int { Calendar.current.component(.year, from: .now) }
@@ -120,8 +121,9 @@ struct ActivityHeatmap: View {
                 }
                 .labelsHidden().fixedSize().accessibilityLabel("Anno del grafico attività")
             }
-            GeometryReader { geometry in
-                let cell = min(16, max(10, (geometry.size.width - labelWidth - 8 + gap) / CGFloat(model.weeks.count) - gap))
+            let cell = min(16, max(7, (availableWidth - labelWidth - 8 + gap) / CGFloat(model.weeks.count) - gap))
+            let gridWidth = CGFloat(model.weeks.count) * (cell + gap) - gap + labelWidth + 8
+            VStack(alignment: .leading, spacing: 8) {
                 ScrollView(.horizontal) {
                     HStack(alignment: .top, spacing: 8) {
                         VStack(alignment: .leading, spacing: gap) {
@@ -155,21 +157,14 @@ struct ActivityHeatmap: View {
                             }
                         }
                     }
-                    .padding(.bottom, 6)
                 }
                 .scrollIndicators(.automatic)
-                // Il suggerimento sta in una fascia sotto la griglia, mai sopra le celle,
-                // e compare solo quando l'anno intero non entra davvero nella larghezza disponibile.
-                .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 4) {
-                    if CGFloat(model.weeks.count) * (cell + gap) - gap + labelWidth + 8 > geometry.size.width + 0.5 {
-                        Label("Scorri per vedere gli altri mesi", systemImage: "arrow.left.and.right")
-                            .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
-                            .padding(.leading, labelWidth + 8)
-                            .allowsHitTesting(false)
-                    }
+                if availableWidth > 0 && gridWidth > availableWidth + 0.5 {
+                    Label("Scorri per vedere gli altri mesi", systemImage: "arrow.left.and.right")
+                        .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
                 }
             }
-            .frame(height: 192)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { availableWidth = $0 }
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 16) { legend; Spacer(minLength: 0); detail(model: model, today: today) }
                 VStack(alignment: .leading, spacing: 10) { legend; detail(model: model, today: today) }
