@@ -31,9 +31,11 @@ struct MiscTests {
         #expect(abs(p.currentPoint.x - 10.5) < 0.001 && abs(p.currentPoint.y + 4.5) < 0.001)
     }
 
-    @Test func ilPettirossoStaNellaTavola() {
-        let box = RobinMark.body.boundingBoxOfPath.union(RobinMark.beak.boundingBoxOfPath)
-        #expect(CGRect(origin: .zero, size: RobinMark.viewBox).contains(box))
+    @Test func ilMarchioHaProporzioniSensate() {
+        #expect(LogoMark.aspect > 1 && LogoMark.aspect < 2)
+        #expect(LogoMark.wordAspect > 2 && LogoMark.wordAspect < 4)
+        // Le righe di testo stanno dentro il marchio.
+        for line in LogoMark.lines { #expect(LogoMark.bounds.contains(line.boundingBox)) }
     }
 
     @Test func linguaRiconosciuta() {

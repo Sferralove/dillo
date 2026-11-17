@@ -122,8 +122,8 @@ enum DebugSnapshot {
             let icons: [(String, NSImage)] = [
                 ("menubar-idle", MenuBarIconModel.render(mode: .idle, waves: [])),
                 ("menubar-rec", MenuBarIconModel.render(mode: .recording, waves: [1, 0.7, 0.3])),
-                ("robin-large", NSImage(size: NSSize(width: 320, height: 256), flipped: true) { r in
-                    RobinMark.draw(in: NSGraphicsContext.current!.cgContext, rect: r, waves: [1, 1, 1]); return true }),
+                ("logo-large", NSImage(size: NSSize(width: 320, height: 256), flipped: true) { r in
+                    LogoMark.draw(in: NSGraphicsContext.current!.cgContext, rect: r.insetBy(dx: 20, dy: 20), palette: .init(ink: CGColor(gray: 1, alpha: 1), accent: LogoMark.Palette.brand.accent), lines: [1, 1, 1]); return true }),
             ]
             for (name, icon) in icons {
                 let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 184, pixelsHigh: 144, bitsPerSample: 8, samplesPerPixel: 4,

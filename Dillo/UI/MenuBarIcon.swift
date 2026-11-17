@@ -2,9 +2,9 @@ import AppKit
 import Observation
 import SwiftUI
 
-/// Icona della barra dei menu: il pettirosso di Dillo.
-/// A riposo è una sagoma monocromatica (template); mentre detti il petto diventa corallo
-/// e dal becco escono onde che seguono la voce; mentre trascrive le onde pulsano in sequenza.
+/// Icona della barra dei menu: la "D" di Dillo.
+/// A riposo è una sagoma monocromatica (template); mentre detti le tre righe di testo diventano corallo
+/// e si accendono seguendo la voce; mentre trascrive pulsano in sequenza.
 @MainActor
 @Observable
 final class MenuBarIconModel {
@@ -46,23 +46,19 @@ final class MenuBarIconModel {
         image = Self.render(mode: .recording, waves: waves)
     }
 
-    /// Tavola 23×18 pt: pettirosso alto 18 pt (≈ 14 pt di corpo) + onde a destra.
+    /// Marchio alto 16 pt (≈ 21 pt di larghezza).
     static func render(mode: Mode, waves: [CGFloat]) -> NSImage {
-        let size = NSSize(width: 18 * RobinMark.aspect, height: 18)
+        let size = NSSize(width: 16 * LogoMark.aspect, height: 16)
         let image = NSImage(size: size, flipped: true) { rect in
             guard let ctx = NSGraphicsContext.current?.cgContext else { return false }
             switch mode {
             case .idle, .error:
-                RobinMark.draw(in: ctx, rect: rect, style: .template(CGColor(gray: 0, alpha: mode == .error ? 0.45 : 1)))
+                let ink = CGColor(gray: 0, alpha: mode == .error ? 0.45 : 1)
+                LogoMark.draw(in: ctx, rect: rect, palette: .init(ink: ink, accent: ink))
             case .recording, .busy:
-                // Il corpo segue il colore del testo della barra dei menu (chiaro/scuro); petto, becco e onde in corallo.
-                var palette = RobinMark.Palette.brand
-                palette.body = NSColor.labelColor.cgColor
-                palette.eye = CGColor(gray: 0, alpha: 0)     // ritagliato
-                // A 18 pt tre onde spesse si fonderebbero: usiamo la prima e la terza (più distanziate),
-                // spesse 1.8× rispetto all'SVG (≈ 1.3 pt). La seconda intensità guida l'arco esterno.
-                let two: [CGFloat] = [waves.first ?? 0, 0, max(waves.count > 1 ? waves[1] : 0, waves.last ?? 0)]
-                RobinMark.draw(in: ctx, rect: rect, style: .color(palette), waves: two, waveBoost: 1.8)
+                // "D" e scie seguono il colore del testo della barra dei menu (chiaro/scuro); le righe sono corallo.
+                let palette = LogoMark.Palette(ink: NSColor.labelColor.cgColor, accent: LogoMark.Palette.brand.accent)
+                LogoMark.draw(in: ctx, rect: rect, palette: palette, lines: waves)
             }
             return true
         }

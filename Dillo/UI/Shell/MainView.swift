@@ -86,7 +86,7 @@ struct IconRail: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 AppMark(size: 30)
-                if expanded { Text("Dillo").font(Typo.display(20)) }
+                if expanded { WordmarkView().frame(height: 15) }
             }
             .padding(.leading, 5).padding(.top, 50).padding(.bottom, 20)
 
@@ -157,7 +157,7 @@ struct AppMark: View {
                                  startPoint: .top, endPoint: .bottom))
             .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
             .overlay(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous).strokeBorder(Theme.stroke))
-            .overlay(RobinView().frame(width: size * 0.78).offset(x: size * 0.05))
+            .overlay(LogoView(lines: [1, 1, 1], ink: .white, accent: Color(red: 0.992, green: 0.384, blue: 0.282)).frame(width: size * 0.62))
             .frame(width: size, height: size)
     }
 }
