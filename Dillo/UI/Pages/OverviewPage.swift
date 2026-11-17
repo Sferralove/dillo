@@ -61,36 +61,23 @@ struct OverviewPage: View {
 
     private func usage(_ s: UsageStats, wide: Bool) -> some View {
         VStack(spacing: 16) {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: wide ? 3 : 2), spacing: 16) {
-                StatCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        BigNumber(s.totalWords)
-                        Eyebrow("Parole dettate · totale")
-                        Text(milestone(s.totalWords)).font(.system(size: 14, design: .serif))
-                            .foregroundStyle(.white.opacity(0.85))
-                        Text("\(s.totalDictations.formatted()) dettature complessive")
-                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+            if wide {
+                GeometryReader { geometry in
+                    let unit = (geometry.size.width - 48) / 4
+                    HStack(alignment: .top, spacing: 16) {
+                        speedCard(s).frame(width: unit)
+                        correctionsCard(s).frame(width: unit)
+                        wordsCard(s).frame(width: unit * 2 + 16)
                     }
                 }
-                StatCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        BigNumber(s.minutesSaved)
-                        Eyebrow("Minuti risparmiati · stima")
-                        Text("Rispetto a scrivere a tastiera, a \(Int(UsageStats.typingWPM)) parole al minuto.")
-                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                    }
+                .frame(height: 204)
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible())], spacing: 16) {
+                    speedCard(s)
+                    correctionsCard(s)
                 }
-                StatCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        BigNumber(s.wordsPerMinute)
-                        Eyebrow("Parole al minuto · media")
-                        SpeedGauge(wpm: s.wordsPerMinute)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                if !wide { monthCard(s) }
+                wordsCard(s)
             }
-            .fixedSize(horizontal: false, vertical: true)
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: wide ? 2 : 1), spacing: 16) {
                 StatCard {
@@ -100,14 +87,11 @@ struct OverviewPage: View {
                             EmptyHint("Detta in qualsiasi app con la scorciatoia: qui vedrai dove usi di più Dillo.")
                         } else {
                             ForEach(s.apps.prefix(6)) { app in
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack(spacing: 8) {
-                                        AppIcon(bundleID: app.bundleID, size: 18)
-                                        Text(app.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
-                                        Spacer(minLength: 4)
-                                        Text("\(app.words.formatted()) parole").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                                    }
-                                    ProportionBar(fraction: Double(app.words) / Double(max(s.totalWords, 1)), color: color(for: app, in: s))
+                                HStack(spacing: 12) {
+                                    AppIcon(bundleID: app.bundleID, size: 18)
+                                    Text(app.name).font(.system(size: 12, weight: .medium)).lineLimit(1).frame(width: 72, alignment: .leading)
+                                    ProportionBar(fraction: Double(app.words) / Double(max(s.totalWords, 1)), color: color(for: app, in: s), height: 24)
+                                    Text("\(app.words.formatted())").font(.system(size: 12)).monospacedDigit().foregroundStyle(Theme.textSecondary)
                                 }
                             }
                         }
@@ -120,18 +104,62 @@ struct OverviewPage: View {
             .fixedSize(horizontal: false, vertical: true)
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 290), spacing: 16, alignment: .top)], spacing: 16) {
-                if wide { monthCard(s) }
+                monthCard(s)
+                StatCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        BigNumber(s.minutesSaved)
+                        Eyebrow("Minuti risparmiati · stima")
+                        Text("Rispetto a scrivere a tastiera, a \(Int(UsageStats.typingWPM)) parole al minuto.")
+                            .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                    }
+                }
                 StatCard {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Dizionario e motori").font(Typo.display(22))
-                        MetricRow(label: "Correzioni applicate", value: s.corrections)
-                        MetricRow(label: "Voci nel dizionario", value: dictionary.count)
-                        Divider().overlay(Theme.stroke)
+                        Text("Motori").font(Typo.display(22))
                         EngineSplit(engines: s.engines, total: s.totalWords)
                     }
                 }
             }
             .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func speedCard(_ s: UsageStats) -> some View {
+        StatCard {
+            VStack(alignment: .leading, spacing: 10) {
+                BigNumber(s.wordsPerMinute)
+                Eyebrow("Parole al minuto")
+                SpeedGauge(wpm: s.wordsPerMinute).frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+    }
+
+    private func correctionsCard(_ s: UsageStats) -> some View {
+        StatCard {
+            VStack(alignment: .leading, spacing: 10) {
+                BigNumber(s.corrections)
+                Eyebrow("Correzioni applicate")
+                Divider().overlay(Theme.stroke).padding(.vertical, 8)
+                MetricRow(label: "Voci nel dizionario", value: dictionary.count)
+            }
+        }
+    }
+
+    private func wordsCard(_ s: UsageStats) -> some View {
+        StatCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top) {
+                    BigNumber(s.totalWords)
+                    Spacer()
+                    if let trend = s.monthTrend { TrendBadge(trend: trend) }
+                }
+                Eyebrow("Parole dettate · totale")
+                Divider().overlay(Theme.stroke).padding(.vertical, 8)
+                Text(milestone(s.totalWords)).font(.system(size: 14, design: .serif))
+                    .foregroundStyle(.white.opacity(0.85))
+                Text("\(s.totalDictations.formatted()) dettature complessive")
+                    .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+            }
         }
     }
 

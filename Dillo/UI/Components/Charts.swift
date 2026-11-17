@@ -101,6 +101,7 @@ struct ActivityHeatmap: View {
     @State private var hovered: Date?
     @State private var selected: Date?
     @State private var availableWidth: CGFloat = 0
+    @State private var page = 2
     private let gap: CGFloat = 2
     private let labelWidth: CGFloat = 34
 
@@ -112,6 +113,9 @@ struct ActivityHeatmap: View {
         let today = model.calendar.startOfDay(for: .now)
         let values = daily.filter { model.contains($0.key) && $0.key <= today }.values.filter { $0 > 0 }.sorted()
         let thresholds = [0.25, 0.5, 0.75].map { q in values.isEmpty ? 1 : values[min(values.count - 1, Int(Double(values.count) * q))] }
+        let startColumn = page * 18
+        let endColumn = min(startColumn + 18, model.weeks.count)
+        let columnCount = endColumn - startColumn
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Text(streak == 1 ? "1 giorno di fila" : "\(streak) giorni di fila")
@@ -122,8 +126,16 @@ struct ActivityHeatmap: View {
                 }
                 .labelsHidden().fixedSize().accessibilityLabel("Anno del grafico attività")
             }
-            let cell = min(16, max(10, (availableWidth - labelWidth - 8 + gap) / CGFloat(model.weeks.count) - gap))
-            let gridWidth = CGFloat(model.weeks.count) * (cell + gap) - gap + labelWidth + 8
+            HStack {
+                Button { page = max(0, page - 1) } label: { Image(systemName: "chevron.left") }
+                    .buttonStyle(.plain).disabled(page == 0).help("Mesi precedenti")
+                Spacer()
+                Button { page = min(2, page + 1) } label: { Image(systemName: "chevron.right") }
+                    .buttonStyle(.plain).disabled(page == 2).help("Mesi successivi")
+            }
+            .foregroundStyle(Theme.textSecondary)
+            let cell = min(16, max(10, (availableWidth - labelWidth - 8 + gap) / CGFloat(columnCount) - gap))
+            let gridWidth = CGFloat(columnCount) * (cell + gap) - gap + labelWidth + 8
             VStack(alignment: .leading, spacing: 8) {
                 ScrollView(.horizontal) {
                     HStack(alignment: .top, spacing: 8) {
@@ -139,16 +151,16 @@ struct ActivityHeatmap: View {
                         VStack(alignment: .leading, spacing: gap) {
                             ZStack(alignment: .topLeading) {
                                 Color.clear
-                                ForEach(model.months, id: \.self) { month in
+                                ForEach(model.months.filter { model.column(for: $0) >= startColumn && model.column(for: $0) < endColumn }, id: \.self) { month in
                                     Text(month.formatted(.dateTime.month(.abbreviated)).capitalized)
                                         .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
                                         .fixedSize()
-                                        .offset(x: CGFloat(model.column(for: month)) * (cell + gap))
+                                        .offset(x: CGFloat(model.column(for: month) - startColumn) * (cell + gap))
                                 }
                             }
-                            .frame(width: CGFloat(model.weeks.count) * (cell + gap) - gap, height: 20)
+                            .frame(width: CGFloat(columnCount) * (cell + gap) - gap, height: 20)
                             HStack(alignment: .top, spacing: gap) {
-                                ForEach(model.weeks.indices, id: \.self) { week in
+                                ForEach(startColumn..<endColumn, id: \.self) { week in
                                     VStack(spacing: gap) {
                                         ForEach(model.weeks[week], id: \.self) { day in
                                             dayCell(day, model: model, today: today, thresholds: thresholds, cell: cell)
@@ -160,7 +172,6 @@ struct ActivityHeatmap: View {
                     }
                 }
                 .scrollIndicators(.automatic)
-                .defaultScrollAnchor(.trailing)
                 if availableWidth > 0 && gridWidth > availableWidth + 0.5 {
                     Label("Scorri per vedere gli altri mesi", systemImage: "arrow.left.and.right")
                         .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)
