@@ -97,18 +97,7 @@ struct OverviewPage: View {
             // La heatmap mantiene le celle settimanali stile GitHub, su tutta la larghezza.
             StatCard {
                 VStack(alignment: .leading, spacing: 18) {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .firstTextBaseline) {
-                            streakTitle(s)
-                            Spacer(minLength: 16)
-                            Text("Record · \(s.longestStreak) giorni").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                        }
-                        VStack(alignment: .leading, spacing: 6) {
-                            streakTitle(s)
-                            Text("Record · \(s.longestStreak) giorni").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                        }
-                    }
-                    ActivityHeatmap(daily: s.dailyWords)
+                    ActivityHeatmap(daily: s.dailyWords, streak: s.currentStreak)
                 }
             }
 
@@ -148,10 +137,6 @@ struct OverviewPage: View {
             }
             .fixedSize(horizontal: false, vertical: true)
         }
-    }
-
-    private func streakTitle(_ s: UsageStats) -> some View {
-        Text(s.currentStreak == 1 ? "1 giorno di fila" : "\(s.currentStreak) giorni di fila").font(Typo.display(24))
     }
 
     private func monthCard(_ s: UsageStats) -> some View {

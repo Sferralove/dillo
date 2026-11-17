@@ -96,6 +96,7 @@ struct AppIcon: View {
 /// Heatmap stile GitHub: sette righe e l'intero anno, gennaio–dicembre.
 struct ActivityHeatmap: View {
     let daily: [Date: Int]
+    let streak: Int
     @State private var year = Calendar.current.component(.year, from: .now)
     @State private var hovered: Date?
     @State private var selected: Date?
@@ -113,9 +114,9 @@ struct ActivityHeatmap: View {
         let thresholds = [0.25, 0.5, 0.75].map { q in values.isEmpty ? 1 : values[min(values.count - 1, Int(Double(values.count) * q))] }
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text("Parole dettate ogni giorno · gennaio–dicembre")
-                    .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                Spacer(minLength: 10)
+                Text(streak == 1 ? "1 giorno di fila" : "\(streak) giorni di fila")
+                    .font(Typo.display(24))
+                Spacer(minLength: 0)
                 Picker("Anno", selection: $year) {
                     ForEach(Array((firstYear...currentYear).reversed()), id: \.self) { y in Text(String(y)).tag(y) }
                 }
@@ -205,8 +206,7 @@ struct ActivityHeatmap: View {
     }
 
     private func detail(model: ActivityYear, today: Date) -> some View {
-        Text((hovered ?? selected).map { description($0, today: today) }
-             ?? "Ogni cella è un giorno. I giorni futuri sono attenuati.")
+        Text((hovered ?? selected).map { description($0, today: today) } ?? "")
             .font(.system(size: 11)).foregroundStyle(Theme.textSecondary)
     }
 
