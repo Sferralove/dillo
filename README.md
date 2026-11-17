@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/icon.png" width="128" alt="Icona di Dillo: un pettirosso stilizzato su sfondo grafite">
+  <img src="docs/icon.png" width="128" alt="Icona di Dillo: una «D» con le scie della voce e tre righe di testo su sfondo grafite">
 </p>
 
 <h1 align="center">Dillo</h1>
@@ -69,7 +69,7 @@ Parlare è circa **tre volte più veloce** che scrivere a tastiera. Dillo rende 
 - **Tuo**: un dizionario personale per nomi e termini tecnici, e una cronologia ricercabile ed esportabile.
 - **Libero**: codice aperto con licenza MIT.
 
-*Dillo* in italiano significa "dillo, pronuncialo". La mascotte è un pettirosso, piccolo uccello che canta.
+*Dillo* in italiano significa "dillo, pronuncialo". Il logo è una «D» attraversata dalle scie della voce, che diventano righe di testo.
 
 ## Funzionalità
 
@@ -77,7 +77,7 @@ Parlare è circa **tre volte più veloce** che scrivere a tastiera. Dillo rende 
 - **Push-to-talk ovunque**: scorciatoia globale configurabile (⌥ destro, ⌥ sinistro, ⌘ destro, ⌃ destro, Fn), in modalità *tieni premuto* o *premi per avviare e fermare*.
 - **Incolla automatico** nel punto in cui si trova il cursore, poi gli appunti tornano come prima.
 - **Esc** annulla la dettatura in corso.
-- **Anteprima dal vivo**: un indicatore flottante con il pettirosso mostra la voce e le parole mentre le pronunci, con una dissolvenza morbida parola per parola.
+- **Anteprima dal vivo**: un indicatore flottante con il logo mostra la voce e le parole mentre le pronunci, con una dissolvenza morbida parola per parola.
 
 ### Due motori on-device
 | | **Apple Speech** (predefinito) | **Parakeet v3** |
@@ -98,7 +98,7 @@ Nomi, sigle, marchi e termini tecnici. Le parole vengono **suggerite al riconosc
 - Scelta del **microfono**, inclusi i dispositivi virtuali (Krisp, BlackHole…).
 - **Avviso di microfono muto** se all'inizio della dettatura non arriva audio.
 - **Rilevamento della lingua**: se detti in un'altra lingua, Dillo propone di cambiarla.
-- **Pettirosso animato nella barra dei menu**: a riposo è una sagoma, mentre detti le onde corallo seguono la voce, mentre trascrive pulsano.
+- **Logo animato nella barra dei menu**: a riposo è una sagoma, mentre detti le righe di testo diventano corallo e seguono la voce, mentre trascrive pulsano.
 - **Guida introduttiva** al primo avvio, con i permessi spiegati e una dettatura di prova.
 - **Controllo dei dati**: conservazione della cronologia, esportazione ed eliminazione.
 
@@ -108,7 +108,7 @@ Nomi, sigle, marchi e termini tecnici. Le parole vengono **suggerite al riconosc
 
 | Benvenuto | Impostazioni |
 |---|---|
-| ![Schermata di benvenuto con il pettirosso](docs/screenshots/onboarding.png) | ![Impostazioni a sezioni](docs/screenshots/settings.png) |
+| ![Schermata di benvenuto con il logo](docs/screenshots/onboarding.png) | ![Impostazioni a sezioni](docs/screenshots/settings.png) |
 
 ## Requisiti
 
@@ -144,8 +144,8 @@ Preferisci compilarla tu? Vedi [Compilare dal codice](#compilare-dal-codice).
 - **Dati**: conservazione della cronologia, esportazione, eliminazione della cronologia e del modello Parakeet.
 
 <p align="center">
-  <img src="docs/screenshots/menubar.png" width="120" alt="Icona di Dillo nella barra dei menu durante la dettatura: il pettirosso con le onde sonore"><br>
-  <sub>Il pettirosso nella barra dei menu durante una dettatura.</sub>
+  <img src="docs/screenshots/menubar.png" width="120" alt="Icona di Dillo nella barra dei menu durante la dettatura: il logo con le righe di testo accese"><br>
+  <sub>Il logo nella barra dei menu durante una dettatura.</sub>
 </p>
 
 ## Privacy
@@ -256,11 +256,11 @@ rilascio del tasto
 - **Apple Speech** usa `SpeechAnalyzer` + `SpeechTranscriber` in streaming, con risultati provvisori; il dizionario arriva come `contextualStrings`.
 - **Parakeet** accumula l'audio a 16 kHz, aggiorna l'anteprima sugli ultimi 12 secondi e al rilascio trascrive tutto.
 - **Persistenza**: SwiftData. Se il database è danneggiato, viene messo da parte e l'app riparte con uno nuovo.
-- **Interfaccia**: SwiftUI con `@Observable`, AppKit solo per pannelli, eventi globali e appunti. Il tema è in [`Theme.swift`](Dillo/UI/Theme.swift), il pettirosso vettoriale in [`RobinMark.swift`](Dillo/UI/RobinMark.swift).
+- **Interfaccia**: SwiftUI con `@Observable`, AppKit solo per pannelli, eventi globali e appunti. Il tema è in [`Theme.swift`](Dillo/UI/Theme.swift), il logo vettoriale in [`LogoMark.swift`](Dillo/UI/LogoMark.swift).
 
 ### Marchio
-- Icona: `Branding/AppIcon-1024.png` (sorgente Affinity `AppIcon.af` / `AppIcon.svg`). Per rigenerare le dimensioni: `zsh Branding/make_icon.sh`.
-- Mascotte: `Branding/Robin.svg` (livelli `beak`, `body`, `breast`, `eye`, `wave1`–`wave3`), disegnata in vettoriale da `RobinMark.swift`.
+- Icona: `Branding/AppIcon-1024.png` (generata da `AppIcon.svg`; `AppIcon.af` è la vecchia sorgente Affinity). Per rigenerare le dimensioni: `zsh Branding/make_icon.sh`.
+- Logo: `Branding/Logo Only.svg` (marchio) e `Branding/Logo Full.svg` (marchio + scritta), disegnati in vettoriale da `LogoMark.swift`.
 - Palette: corallo `#FD6248`, grafite `#111214` / `#2E2D2E`, crema `#F4F1EA`. Titoli e numeri usano il serif di sistema (New York).
 
 ## Rilascio
@@ -308,7 +308,7 @@ I contributi sono benvenuti: bug, idee, traduzioni, documentazione e codice.
 
 ## Crediti e licenza
 
-Dillo è distribuito con licenza **MIT**: vedi [LICENSE](LICENSE). Il nome, il pettirosso e l'icona identificano il progetto ufficiale: per i fork pubblici vedi [TRADEMARKS.md](TRADEMARKS.md).
+Dillo è distribuito con licenza **MIT**: vedi [LICENSE](LICENSE). Il nome, il logo e l'icona identificano il progetto ufficiale: per i fork pubblici vedi [TRADEMARKS.md](TRADEMARKS.md).
 
 Dillo si appoggia a:
 - **Apple Speech**, il framework di riconoscimento vocale di macOS;

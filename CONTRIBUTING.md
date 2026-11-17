@@ -76,7 +76,7 @@ Dillo/
 ├── Services/   Microfono, scorciatoia globale, incolla, permessi, rilevamento lingua
 └── UI/         Finestra principale, indicatore flottante, barra dei menu, impostazioni, guida, marchio
 DilloTests/     Test unitari (Swift Testing)
-Branding/       Icona e mascotte (sorgenti Affinity/SVG)
+Branding/       Logo e icona (SVG, sorgenti Affinity)
 Config/         Configurazione della firma
 scripts/        Script di rilascio
 ```
@@ -132,7 +132,7 @@ build/Build/Products/Debug/Dillo.app/Contents/MacOS/Dillo -demo -snapshot /tmp/d
 ## Interfaccia e marchio
 
 - Palette e tipografia sono in [UI/Theme.swift](Dillo/UI/Theme.swift): usa i token (`Theme.coral`, `Typo.display`) invece di colori e font scritti a mano.
-- La mascotte è disegnata da [UI/RobinMark.swift](Dillo/UI/RobinMark.swift) a partire da `Branding/Robin.svg`.
+- Il logo e la scritta sono disegnati da [UI/LogoMark.swift](Dillo/UI/LogoMark.swift) a partire da `Branding/Logo Only.svg` e `Branding/Logo Full.svg`.
 - L'icona si rigenera da `Branding/AppIcon-1024.png` con `zsh Branding/make_icon.sh`.
 - Rispetta le preferenze di sistema dove possibile (dimensione del testo, riduzione del movimento, VoiceOver).
 

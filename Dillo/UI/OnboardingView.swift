@@ -118,7 +118,7 @@ struct OnboardingView: View {
         switch step {
         case .welcome:
             VStack(spacing: 18) {
-                RobinView(waves: [1, 0.75, 0.5], waveBoost: 1.1).frame(height: 96)
+                LogoView(lines: [1, 0.75, 0.5]).frame(height: 96)
                 HStack(spacing: 10) {
                     KeyCap(label: controller.hotkeyKey.glyph, size: 34, accent: true)
                     Text("tieni premuto e parla").font(.system(size: 15, weight: .medium))
@@ -141,7 +141,7 @@ struct OnboardingView: View {
             Group {
                 if controller.isRecording || controller.state == .transcribing {
                     VStack(spacing: 12) {
-                        HUDRobin(level: controller.level, busy: controller.state == .transcribing)
+                        HUDLogo(level: controller.level, busy: controller.state == .transcribing)
                             .scaleEffect(1.6).frame(height: 50)
                         Group {
                             if controller.partialText.isEmpty { Text("Ti ascolto…").italic().foregroundStyle(Theme.textSecondary) }

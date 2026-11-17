@@ -440,7 +440,7 @@ private struct AboutSettings: View {
             HStack(spacing: 16) {
                 AppMark(size: 64)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Dillo").font(Typo.display(24))
+                    WordmarkView().frame(height: 20).padding(.bottom, 2)
                     Text("Versione \(Bundle.main.shortVersion) (\(Bundle.main.buildNumber))")
                         .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
                     Text("Dettatura privata, tutta sul tuo Mac.")

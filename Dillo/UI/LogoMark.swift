@@ -1,0 +1,116 @@
+import CoreGraphics
+import SwiftUI
+
+/// Il marchio di Dillo: una "D" con due scie di voce e tre righe di testo (Branding/Logo Only.svg),
+/// più la scritta "Dillo" (Branding/Logo Full.svg).
+/// I tracciati sono copiati tali e quali dagli SVG (stesso sistema di coordinate nei due file) e disegnati in vettoriale,
+/// così lo stesso disegno serve per la barra dei menu, l'indicatore flottante e l'interfaccia.
+enum LogoMark {
+    // Tracciati da Branding/Logo Full.svg — se aggiorni i file in Affinity, ricopia qui gli attributi `d`.
+    static let letterD = SVGPath.parse("M395.478,115.523C400.634,121.046 408.338,128.617 415.428,147.527C417.895,154.107 426.275,182.936 411.064,212.269C402.23,229.305 391.867,237.45 385.712,241.807C382.329,244.2 374.677,248.401 373.286,249.038C353.58,258.049 337.02,256.594 327.5,256.624C322.7,256.639 270.093,256.804 267.495,256.553C260.301,255.859 260.07,249.395 260.038,248.519C259.635,237.243 260.336,231.6 267.387,226.335C275.445,220.319 292.926,224.318 311.432,226.966C312.652,227.14 319.613,228.729 339.499,228.364C340.702,228.342 363.438,229.459 380.164,209.226C391.097,196.002 397.475,173.293 387.002,150.733C381.777,139.476 371.276,130.254 363.552,126.402C349.67,119.479 341.948,120.54 320.5,120.509C305.243,120.487 299.17,119.721 294.094,127.241C292.648,129.383 289.753,136.302 281.506,137.543C281.235,137.584 273.996,139.034 267.651,132.359C263.249,127.728 261.474,121.928 260.526,117.495C259.936,114.735 259.474,100.32 260.407,97.468C262.597,90.775 270.439,91.749 273.502,91.722C273.743,91.72 338.844,91.698 340.494,91.748C358.694,92.302 373.1,99.792 375.686,101.137C378.574,102.638 386.282,106.433 395.478,115.523Z")
+    static let trailUpper = SVGPath.parse("M291.499,180.089C278.111,179.624 266.6,168.949 262.172,165.98C260.455,164.829 244.348,152.116 219.549,154.931C218.623,155.036 208.685,157.91 203.842,150.282C199.251,143.052 203.73,132.921 213.545,131.897C216.76,131.561 231.36,129.4 248.331,136.889C263.688,143.667 271.297,155.386 275.29,159.691C286.771,172.069 292.216,170.298 296.105,173.913C297.62,175.322 297.981,177.456 296.541,178.543C294.387,180.168 294.19,179.725 291.499,180.089Z")
+    static let trailLower = SVGPath.parse("M263.504,181.494C275.545,188.949 275.966,190.682 285.52,194.448C290.133,196.267 298.829,197.044 297.544,201.515C296.626,204.707 288.968,206.14 282.559,205.108C264.45,202.191 260.631,195.969 238.507,194.398C227.875,193.642 216.357,196.879 213.491,196.821C202.143,196.588 197.689,181.977 207.256,175.133C208.146,174.496 210.842,172.567 220.53,171.808C232.194,170.894 247.276,171.96 263.504,181.494Z")
+    /// Le tre righe di testo, dall'alto in basso: seguono la voce (0…1) nell'indicatore e nella barra dei menu.
+    static let lines = [
+        SVGPath.parse("M361.501,147.089C362.045,147.098 367.036,146.465 369.069,150.696C370.057,152.751 369.665,158.434 363.537,158.949C359.947,159.25 359.947,159.146 318.5,159.079C310.798,159.066 306.171,159.613 304.475,155.511C303.01,151.966 304.898,147.292 310.483,147.121C313.775,147.02 357.42,147.083 361.501,147.089Z"),
+        SVGPath.parse("M365.499,182.732C363.414,182.722 310.82,182.712 310.495,182.702C301.63,182.439 301.838,171.911 309.536,170.946C310.262,170.855 367.874,170.868 368.478,170.906C372.38,171.151 374.817,173.857 374.465,177.497C373.862,183.749 365.837,182.729 365.499,182.732Z"),
+        SVGPath.parse("M349.503,194.27C350.028,194.301 354.154,193.914 356.141,197.672C356.435,198.228 359.03,206.043 349.496,206.102C346.3,206.123 312.057,206.337 309.54,206.044C301.353,205.089 301.9,194.564 310.494,194.281C314.368,194.154 346.382,194.26 349.503,194.27Z"),
+    ]
+
+    // Lettere della scritta "Dillo" (stesso sistema di coordinate del marchio).
+    static let wordD = SVGPath.parse("M518.565,115.115C532.2,117.972 548.644,123.173 561.229,140.686C574.892,159.697 577.312,192.247 560.846,215.732C555.102,223.925 547.444,230.663 536.315,236.112C535.114,236.7 527.407,239.871 521.421,241.122C511.353,243.226 510.278,242.853 467.502,242.946C462.257,242.957 459.744,243.699 459.652,239.497C459.649,239.36 459.679,129.423 459.638,120.499C459.617,115.92 459.144,113.934 463.509,113.892C465.384,113.874 505.568,113.847 507.484,113.894C512.046,114.006 515.628,114.687 518.565,115.115ZM545.076,183.451C545.576,177.226 545.565,177.226 545.275,173.519C545.134,171.727 544.299,161.074 537.656,152.386C526.448,137.73 510.672,137.684 502.498,137.65C488.693,137.593 487.254,137.41 486.58,138.548C486.045,139.451 486.33,139.557 486.275,205.5C486.265,217.645 486.182,218.114 487.483,218.549C488.432,218.866 504.981,218.681 506.502,218.664C522.456,218.486 541.592,208.36 545.076,183.451Z")
+    static let wordO = SVGPath.parse("M823.057,191.504C823.038,198.635 822.774,203.437 818.337,214.429C814.841,223.09 805.291,234.088 793.432,239.353C780.752,244.983 765.625,247.621 747.572,241.306C744.284,240.156 737.558,236.998 732.755,233.177C729.649,230.705 724.283,225.062 722.993,223.156C720.135,218.933 703.955,195.621 720.334,166.403C726.354,155.663 738.978,146.571 749.445,143.327C750.768,142.917 773.586,134.478 797.276,147.881C803.896,151.626 811.682,159.171 815.075,164.766C822.831,177.555 822.917,188.178 823.057,191.504ZM774.578,164.12C772.529,163.794 772.552,163.758 770.497,163.533C764.223,162.848 756.179,165.408 751.653,168.712C735.402,180.581 735.713,201.538 747.706,213.293C749.195,214.751 757.936,223.318 772.48,221.34C779.022,220.451 783.063,217.774 783.515,217.526C787.633,215.268 794.535,208.425 796.518,200.505C800.895,183.025 790.104,171.835 784.598,168.348C779.094,164.863 775.576,164.383 774.578,164.12Z")
+    static let wordL1 = SVGPath.parse("M627.154,142.5C627.152,135.167 627.15,127.835 627.147,120.503C627.132,112.95 626.567,109.83 630.484,109.355C632.535,109.107 647.982,109.274 649.503,109.291C654.273,109.342 653.763,111.632 653.775,118.5C653.783,123.22 653.856,164.277 653.778,177.501C653.679,194.336 653.909,239.27 653.648,240.534C653.024,243.549 651.482,243.124 638.501,243.119C629.829,243.117 627.296,243.979 627.18,238.507C627.118,235.575 627.151,150.18 627.154,142.5Z")
+    static let wordL2 = SVGPath.parse("M679.501,243.134C677.838,243.11 673.529,243.867 673.327,239.505C673.185,236.437 673.285,185.22 673.294,180.499C673.427,112.647 672.898,112.461 673.908,110.755C674.891,109.094 675.731,109.205 691.502,109.281C697.318,109.309 699.445,108.672 699.477,114.5C699.66,148.34 699.498,208.34 699.476,216.5C699.411,240.729 699.796,241.116 698.345,242.318C697.267,243.213 697.104,243.123 679.501,243.134Z")
+    static let wordI = SVGPath.parse("M610.103,190.5C609.997,240.049 610.316,240.145 609.654,241.589C608.807,243.436 606.819,243.09 594.497,243.136C586.756,243.165 584.318,243.736 584.072,239.52C584.033,238.849 584.05,238.848 583.99,167.499C583.981,156.11 584.021,156.121 584.048,154.501C584.135,149.235 583.132,147.165 588.506,146.917C588.567,146.914 605.674,146.906 606.481,146.926C610.765,147.031 610.08,149.43 610.095,161.5C610.097,171.167 610.1,180.833 610.103,190.5Z")
+    static let wordIDot = SVGPath.parse("M610.887,128.643C609.908,130.887 607.403,137.19 598.476,138.3C591.291,139.194 581.54,133.448 582.794,121.54C584.039,109.72 601.302,103.171 609.775,116.337C610.566,117.567 612.897,122.299 611.299,127.444C611.174,127.848 611.012,128.239 610.887,128.643Z")
+
+    private static let shape: [CGPath] = [letterD, trailUpper, trailLower]
+    private static let word: [CGPath] = [wordD, wordI, wordIDot, wordL1, wordL2, wordO]
+
+    /// Riquadro del solo marchio (la "D" con scie e righe), in coordinate dell'SVG.
+    static let bounds = (shape + lines).reduce(CGRect.null) { $0.union($1.boundingBox) }
+    /// Riquadro della scritta "Dillo".
+    static let wordBounds = word.reduce(CGRect.null) { $0.union($1.boundingBox) }
+    /// Proporzione larghezza/altezza del marchio.
+    static let aspect = bounds.width / bounds.height
+    /// Proporzione larghezza/altezza della scritta.
+    static let wordAspect = wordBounds.width / wordBounds.height
+
+    struct Palette {
+        var ink: CGColor        // "D" e scie
+        var accent: CGColor     // righe di testo quando sono animate
+
+        static let brand = Palette(
+            ink: CGColor(srgbRed: 0.024, green: 0.024, blue: 0.024, alpha: 1),      // #060606
+            accent: CGColor(srgbRed: 0.992, green: 0.384, blue: 0.282, alpha: 1))   // #FD6248
+    }
+
+    /// Adatta `source` dentro `rect` (centrato) e applica la trasformazione al contesto.
+    private static func fit(_ ctx: CGContext, source: CGRect, into rect: CGRect) -> CGFloat {
+        let scale = min(rect.width / source.width, rect.height / source.height)
+        ctx.translateBy(x: rect.midX - source.width * scale / 2, y: rect.midY - source.height * scale / 2)
+        ctx.scaleBy(x: scale, y: scale)
+        ctx.translateBy(x: -source.minX, y: -source.minY)
+        return scale
+    }
+
+    /// Disegna il marchio dentro `rect` (centrato).
+    /// - lines: intensità 0…1 delle tre righe di testo. Vuoto = marchio statico in un solo colore;
+    ///   altrimenti le righe diventano `accent` e si accendono secondo l'intensità (a zero restano un tenue segno).
+    static func draw(in ctx: CGContext, rect: CGRect, palette: Palette = .brand,
+                     lines intensities: [CGFloat] = []) {
+        ctx.saveGState()
+        _ = fit(ctx, source: bounds, into: rect)
+        ctx.addPath(letterD); ctx.addPath(trailUpper); ctx.addPath(trailLower)
+        ctx.setFillColor(palette.ink); ctx.fillPath()
+        for (i, path) in lines.enumerated() {
+            let level = i < intensities.count ? min(max(intensities[i], 0), 1) : nil
+            let color = level.map { palette.accent.copy(alpha: palette.accent.alpha * (0.22 + 0.78 * $0)) ?? palette.accent } ?? palette.ink
+            ctx.addPath(path); ctx.setFillColor(color); ctx.fillPath()
+        }
+        ctx.restoreGState()
+    }
+
+    /// Disegna la scritta "Dillo" dentro `rect`.
+    static func drawWordmark(in ctx: CGContext, rect: CGRect, ink: CGColor) {
+        ctx.saveGState()
+        _ = fit(ctx, source: wordBounds, into: rect)
+        for path in word { ctx.addPath(path) }
+        ctx.setFillColor(ink); ctx.fillPath()
+        ctx.restoreGState()
+    }
+}
+
+/// Il marchio come vista SwiftUI: si adatta al tema (chiaro/scuro) e, con `lines`, anima le righe di testo.
+struct LogoView: View {
+    var lines: [CGFloat] = []
+    var ink: Color = Theme.ink
+    var accent: Color = Theme.accent
+    var body: some View {
+        Canvas { context, size in
+            let palette = LogoMark.Palette(ink: ink.resolve(in: context.environment).cgColor as CGColor? ?? LogoMark.Palette.brand.ink,
+                                           accent: accent.resolve(in: context.environment).cgColor as CGColor? ?? LogoMark.Palette.brand.accent)
+            context.withCGContext { cg in
+                LogoMark.draw(in: cg, rect: CGRect(origin: .zero, size: size), palette: palette, lines: lines)
+            }
+        }
+        .aspectRatio(LogoMark.aspect, contentMode: .fit)
+        .accessibilityHidden(true)
+    }
+}
+
+/// La scritta "Dillo" del logo come vista SwiftUI. Imposta l'altezza con `.frame(height:)`.
+struct WordmarkView: View {
+    var ink: Color = Theme.ink
+    var body: some View {
+        Canvas { context, size in
+            let color = ink.resolve(in: context.environment).cgColor as CGColor? ?? LogoMark.Palette.brand.ink
+            context.withCGContext { cg in
+                LogoMark.drawWordmark(in: cg, rect: CGRect(origin: .zero, size: size), ink: color)
+            }
+        }
+        .aspectRatio(LogoMark.wordAspect, contentMode: .fit)
+        .accessibilityLabel("Dillo")
+    }
+}

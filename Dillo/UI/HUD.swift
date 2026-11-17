@@ -85,14 +85,14 @@ struct HUDView: View {
                     .foregroundStyle(Theme.ink.opacity(0.95))
                     .fixedSize(horizontal: false, vertical: true)
             } else if controller.state == .transcribing {
-                HUDRobin(level: 0, busy: true)
+                HUDLogo(level: 0, busy: true)
                 Text("Trascrivo…").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(Theme.ink.opacity(0.9))
             } else if controller.micSilent {
                 Image(systemName: "mic.slash.fill").foregroundStyle(Theme.accent)
                 Text("Il microfono non sente nulla").font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.ink.opacity(0.9))
             } else {
-                HUDRobin(level: controller.level, busy: false)
+                HUDLogo(level: controller.level, busy: false)
                 HStack(spacing: 3) {
                     ForEach(history.indices, id: \.self) { i in
                         Capsule().fill(Theme.barGradient)
@@ -106,8 +106,8 @@ struct HUDView: View {
     }
 }
 
-/// Il pettirosso dell'indicatore: le onde seguono la voce, o pulsano mentre trascrive.
-struct HUDRobin: View {
+/// Il marchio dell'indicatore: le righe seguono la voce, o pulsano mentre trascrive.
+struct HUDLogo: View {
     var level: Float
     var busy: Bool
     @State private var smoothed: [CGFloat] = [0, 0, 0]
@@ -117,9 +117,9 @@ struct HUDRobin: View {
             let waves: [CGFloat] = busy
                 ? (0..<3).map { i in CGFloat(max(0, sin(ctx.date.timeIntervalSinceReferenceDate * 4.5 - Double(i) * 0.9))) }
                 : smoothed
-            RobinView(waves: waves, waveBoost: 1.35)
+            LogoView(lines: waves)
         }
-        .frame(width: 40, height: 32)
+        .frame(width: 36, height: 28)
         .onChange(of: level) { _, new in
             let l = CGFloat(new) * 2.4
             let targets = [min(max(l, 0), 1), min(max(l - 0.6, 0), 1), min(max(l - 1.2, 0), 1)]

@@ -7,6 +7,10 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/).
 
 ## [Non ancora rilasciato]
 
+### Modificato
+- Rebranding: nuovo logo (una «D» con le scie della voce e tre righe di testo), nuova scritta «Dillo» e nuova icona dell'app.
+  Il pettirosso è sostituito ovunque: barra dei menu, indicatore flottante, benvenuto e impostazioni. Le tre righe di testo seguono la voce.
+
 ## [1.2.0] — 2026-11-15
 
 Anteprima: il DMG non è ancora notarizzato da Apple.
