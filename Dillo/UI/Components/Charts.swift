@@ -122,7 +122,7 @@ struct ActivityHeatmap: View {
                 }
                 .labelsHidden().fixedSize().accessibilityLabel("Anno del grafico attività")
             }
-            let cell = min(16, max(7, (availableWidth - labelWidth - 8 + gap) / CGFloat(model.weeks.count) - gap))
+            let cell = min(16, max(10, (availableWidth - labelWidth - 8 + gap) / CGFloat(model.weeks.count) - gap))
             let gridWidth = CGFloat(model.weeks.count) * (cell + gap) - gap + labelWidth + 8
             VStack(alignment: .leading, spacing: 8) {
                 ScrollView(.horizontal) {
@@ -160,6 +160,7 @@ struct ActivityHeatmap: View {
                     }
                 }
                 .scrollIndicators(.automatic)
+                .defaultScrollAnchor(.trailing)
                 if availableWidth > 0 && gridWidth > availableWidth + 0.5 {
                     Label("Scorri per vedere gli altri mesi", systemImage: "arrow.left.and.right")
                         .font(.system(size: 10.5)).foregroundStyle(Theme.textSecondary)

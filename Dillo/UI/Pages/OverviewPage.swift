@@ -92,14 +92,7 @@ struct OverviewPage: View {
             }
             .fixedSize(horizontal: false, vertical: true)
 
-            // La heatmap mantiene le celle settimanali stile GitHub, su tutta la larghezza.
-            StatCard {
-                VStack(alignment: .leading, spacing: 18) {
-                    ActivityHeatmap(daily: s.dailyWords, streak: s.currentStreak)
-                }
-            }
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 290), spacing: 18, alignment: .top)], spacing: 18) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: wide ? 2 : 1), spacing: 16) {
                 StatCard {
                     VStack(alignment: .leading, spacing: 18) {
                         Text("Dove detti").font(Typo.display(24))
@@ -120,6 +113,13 @@ struct OverviewPage: View {
                         }
                     }
                 }
+                StatCard {
+                    ActivityHeatmap(daily: s.dailyWords, streak: s.currentStreak)
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 290), spacing: 16, alignment: .top)], spacing: 16) {
                 if wide { monthCard(s) }
                 StatCard {
                     VStack(alignment: .leading, spacing: 16) {
