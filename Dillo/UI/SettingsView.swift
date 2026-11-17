@@ -57,8 +57,8 @@ struct SettingsView: View {
         }
         .frame(width: 780, height: 560)
         .background(Theme.graphite)
-        .tint(Theme.coral)
-        .preferredColorScheme(.dark)
+        .tint(Theme.accent)
+        .preferredColorScheme(AppTheme.colorScheme)
         .toggleStyle(.switch)
     }
 
@@ -74,10 +74,10 @@ struct SettingsView: View {
                             Spacer(minLength: 0)
                         }
                         .font(.system(size: 13, weight: section == item ? .semibold : .regular))
-                        .foregroundStyle(section == item ? .white : .white.opacity(0.7))
+                        .foregroundStyle(section == item ? Theme.ink : Theme.ink.opacity(0.7))
                         .padding(.horizontal, 10)
                         .frame(height: 32)
-                        .background(section == item ? Color.white.opacity(0.08) : .clear,
+                        .background(section == item ? Theme.ink.opacity(0.08) : .clear,
                                     in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                         .contentShape(Rectangle())
                     }
@@ -158,7 +158,7 @@ private struct GeneralSettings: View {
             }
             if let uid = controller.microphoneUID, !controller.inputDevices.contains(where: { $0.uid == uid }) {
                 Label("Il microfono scelto non è collegato: Dillo usa quello di sistema.", systemImage: "exclamationmark.triangle")
-                    .font(.system(size: 12)).foregroundStyle(Theme.coral)
+                    .font(.system(size: 12)).foregroundStyle(Theme.accent)
             }
             SettingsGroup(title: "Sistema") {
                 SettingsRow(title: "Apri Dillo all'avvio del Mac") {
@@ -279,17 +279,17 @@ private struct EngineCard: View {
             HStack(spacing: 14) {
                 Image(systemName: kind.symbol)
                     .font(.system(size: 18))
-                    .foregroundStyle(selected ? Theme.coral : .white.opacity(0.7))
+                    .foregroundStyle(selected ? Theme.accent : Theme.ink.opacity(0.7))
                     .frame(width: 40, height: 40)
-                    .background(Theme.coral.opacity(selected ? 0.16 : 0.05), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .background(Theme.accent.opacity(selected ? 0.16 : 0.05), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 8) {
                         Text(kind.title).font(.system(size: 14, weight: .semibold))
                         if kind == .apple {
                             Text("Consigliato").font(.system(size: 10.5, weight: .semibold))
-                                .foregroundStyle(Theme.coral)
+                                .foregroundStyle(Theme.accent)
                                 .padding(.horizontal, 7).padding(.vertical, 2)
-                                .background(Theme.coral.opacity(0.13), in: Capsule())
+                                .background(Theme.accent.opacity(0.13), in: Capsule())
                         }
                     }
                     Text(kind.subtitle).font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
@@ -297,12 +297,12 @@ private struct EngineCard: View {
                 Spacer(minLength: 10)
                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 18))
-                    .foregroundStyle(selected ? Theme.coral : Theme.textTertiary)
+                    .foregroundStyle(selected ? Theme.accent : Theme.textTertiary)
             }
             .padding(16)
             .background(Theme.raised.opacity(selected ? 0.9 : (hover ? 0.75 : 0.6)), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(selected ? Theme.coral.opacity(0.55) : Theme.stroke, lineWidth: selected ? 1.5 : 1))
+                .strokeBorder(selected ? Theme.accent.opacity(0.55) : Theme.stroke, lineWidth: selected ? 1.5 : 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -365,7 +365,7 @@ private struct DataSettings: View {
         @Bindable var controller = controller
         VStack(alignment: .leading, spacing: 22) {
             HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "lock.shield.fill").font(.system(size: 20)).foregroundStyle(Theme.coral)
+                Image(systemName: "lock.shield.fill").font(.system(size: 20)).foregroundStyle(Theme.accent)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("La tua voce resta sul tuo Mac.").font(.system(size: 14, weight: .semibold))
                     Text("L'audio vive solo in memoria per la durata della dettatura e non viene mai inviato a server. Cronologia e dizionario sono salvati solo qui.")
@@ -374,8 +374,8 @@ private struct DataSettings: View {
                 }
             }
             .padding(16)
-            .background(Theme.coral.opacity(0.07), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.coral.opacity(0.25)))
+            .background(Theme.accent.opacity(0.07), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.accent.opacity(0.25)))
 
             SettingsGroup(title: "Cronologia") {
                 SettingsRow(title: "Conserva", detail: retention.first { $0.0 == controller.retentionDays }?.1) {

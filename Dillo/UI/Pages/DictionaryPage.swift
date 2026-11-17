@@ -35,7 +35,7 @@ struct DictionaryPage: View {
                                 .keyboardShortcut(.defaultAction)
                                 .disabled(term.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
-                        if let error { Label(error, systemImage: "exclamationmark.circle").foregroundStyle(Theme.coral).font(.callout) }
+                        if let error { Label(error, systemImage: "exclamationmark.circle").foregroundStyle(Theme.accent).font(.callout) }
                         else if let feedback { Label(feedback, systemImage: "checkmark.circle").foregroundStyle(Theme.textSecondary).font(.callout) }
                     }
                     .padding(20).card(radius: 16)
@@ -108,7 +108,7 @@ private struct DictionaryFields: View {
     }
     private func field(title: String, example: String, prompt: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text(title).font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.85))
+            Text(title).font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.85))
             TextField(prompt, text: text)
                 .textFieldStyle(.dillo)
                 .accessibilityLabel(title)
@@ -136,7 +136,7 @@ private struct DictionaryEditor: View {
         VStack(alignment: .leading, spacing: 22) {
             Text("Modifica parola").font(Typo.pageTitle)
             DictionaryFields(term: $term, variants: $variants)
-            if let error { Label(error, systemImage: "exclamationmark.circle").foregroundStyle(Theme.coral).font(.callout) }
+            if let error { Label(error, systemImage: "exclamationmark.circle").foregroundStyle(Theme.accent).font(.callout) }
             HStack {
                 Spacer()
                 Button("Annulla") { dismiss() }.keyboardShortcut(.cancelAction)
@@ -171,7 +171,7 @@ private struct EntryCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
-                Text(entry.term).font(.system(size: 18, weight: .medium, design: .serif))
+                Text(entry.term).font(.system(size: 18, weight: .medium))
                 Spacer(minLength: 8)
                 Button(action: onEdit) { Image(systemName: "pencil") }
                     .buttonStyle(.plain).foregroundStyle(Theme.textSecondary)
@@ -188,14 +188,14 @@ private struct EntryCard: View {
             } else {
                 VStack(alignment: .leading, spacing: 5) {
                     ForEach(Array((expanded ? entry.variantList : Array(entry.variantList.prefix(3))).enumerated()), id: \.offset) { _, tag in
-                        Text(tag).font(.system(size: 12)).foregroundStyle(.white.opacity(0.8))
+                        Text(tag).font(.system(size: 12)).foregroundStyle(Theme.ink.opacity(0.8))
                             .padding(.horizontal, 8).padding(.vertical, 4)
-                            .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 6))
+                            .background(Theme.ink.opacity(0.05), in: RoundedRectangle(cornerRadius: 6))
                     }
                 }
                 if entry.variantList.count > 3 {
                     Button(expanded ? "Mostra meno" : "Mostra tutte (\(entry.variantList.count))") { expanded.toggle() }
-                        .buttonStyle(.plain).font(.system(size: 12)).foregroundStyle(Theme.coral)
+                        .buttonStyle(.plain).font(.system(size: 12)).foregroundStyle(Theme.accent)
                 }
             }
         }

@@ -79,9 +79,9 @@ struct SearchField: View {
         .padding(.horizontal, 11)
         .frame(minWidth: expands ? 0 : 220, maxWidth: expands ? .infinity : 220)
         .frame(height: 34)
-        .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .background(Theme.ink.opacity(0.05), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
-            .strokeBorder(focused ? Theme.coral.opacity(0.6) : Theme.stroke))
+            .strokeBorder(focused ? Theme.accent.opacity(0.6) : Theme.stroke))
         .background(Button("") { focused = true }.keyboardShortcut("f").hidden())
     }
 }
@@ -97,7 +97,7 @@ struct DictationPill: View {
                 TimelineView(.periodic(from: started, by: 1)) { ctx in
                     Text(Duration.seconds(ctx.date.timeIntervalSince(started)).formatted(.time(pattern: .minuteSecond)))
                         .font(.system(size: 12.5, weight: .semibold).monospacedDigit())
-                        .foregroundStyle(Theme.coral)
+                        .foregroundStyle(Theme.accent)
                 }
             } else if controller.isReady {
                 HStack(spacing: 7) {
@@ -113,7 +113,7 @@ struct DictationPill: View {
                     Text(stateLabel)
                 }
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(controller.state.isError ? Theme.coral : Theme.textSecondary)
+                .foregroundStyle(controller.state.isError ? Theme.accent : Theme.textSecondary)
             }
 
             Button {
@@ -121,11 +121,11 @@ struct DictationPill: View {
             } label: {
                 Image(systemName: controller.isRecording ? "stop.fill" : (controller.state.isError ? "arrow.clockwise" : "mic.fill"))
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(controller.isRecording ? .white : Theme.coral)
+                    .foregroundStyle(controller.isRecording ? .white : Theme.accent)
                     .frame(width: 36, height: 36)
-                    .background(controller.isRecording ? Theme.coral : Theme.coral.opacity(0.14), in: Circle())
-                    .overlay(Circle().strokeBorder(Theme.coral.opacity(controller.isRecording ? 0 : 0.35)))
-                    .shadow(color: Theme.coral.opacity(controller.isRecording ? 0.5 : 0), radius: 10)
+                    .background(controller.isRecording ? Theme.accent : Theme.accent.opacity(0.14), in: Circle())
+                    .overlay(Circle().strokeBorder(Theme.accent.opacity(controller.isRecording ? 0 : 0.35)))
+                    .shadow(color: Theme.accent.opacity(controller.isRecording ? 0.5 : 0), radius: 10)
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
@@ -136,8 +136,8 @@ struct DictationPill: View {
         .padding(.leading, 16)
         .padding(.trailing, 5)
         .frame(height: 46)
-        .background(Color.white.opacity(controller.isRecording ? 0.06 : 0.035), in: Capsule())
-        .overlay(Capsule().strokeBorder(controller.isRecording ? Theme.coral.opacity(0.45) : Theme.stroke))
+        .background(Theme.ink.opacity(controller.isRecording ? 0.06 : 0.035), in: Capsule())
+        .overlay(Capsule().strokeBorder(controller.isRecording ? Theme.accent.opacity(0.45) : Theme.stroke))
         .fixedSize()
         .animation(.snappy(duration: 0.25), value: controller.isRecording)
     }
@@ -161,26 +161,26 @@ struct LivePreview: View {
         Group {
             if controller.isRecording || controller.state == .transcribing {
                 HStack(alignment: .top, spacing: 10) {
-                    Circle().fill(Theme.coral).frame(width: 6, height: 6).padding(.top, 6)
+                    Circle().fill(Theme.accent).frame(width: 6, height: 6).padding(.top, 6)
                     Group {
                         if controller.micSilent {
                             Text("Il microfono non sente nulla: controlla il microfono scelto nelle Impostazioni.")
-                                .foregroundStyle(Theme.coral)
+                                .foregroundStyle(Theme.accent)
                         } else if controller.partialText.isEmpty {
                             Text("Ti ascolto…").italic()
                         } else {
                             RevealText(text: controller.partialText)
                         }
                     }
-                        .font(.system(size: 14, design: .serif))
-                        .foregroundStyle(.white.opacity(controller.partialText.isEmpty ? 0.5 : 0.9))
+                        .font(.system(size: 14))
+                        .foregroundStyle(Theme.ink.opacity(controller.partialText.isEmpty ? 0.5 : 0.9))
                         .lineLimit(2)
                         .truncationMode(.head)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(14)
-                .background(Theme.coral.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.coral.opacity(0.25)))
+                .background(Theme.accent.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.accent.opacity(0.25)))
                 .transition(.move(edge: .top).combined(with: .opacity))
             } else if let lang = controller.languageSuggestion {
                 LanguageBanner(language: lang)
@@ -215,14 +215,14 @@ struct Banner: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: symbol).foregroundStyle(Theme.coral)
-            Text(text).font(.system(size: 12.5)).foregroundStyle(.white.opacity(0.85))
+            Image(systemName: symbol).foregroundStyle(Theme.accent)
+            Text(text).font(.system(size: 12.5)).foregroundStyle(Theme.ink.opacity(0.85))
                 .frame(maxWidth: .infinity, alignment: .leading)
             Button(action.0, action: action.1).buttonStyle(.primary)
         }
         .padding(12)
-        .background(Theme.coral.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.coral.opacity(0.25)))
+        .background(Theme.accent.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.accent.opacity(0.25)))
     }
 }
 
@@ -233,7 +233,7 @@ struct LanguageBanner: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "globe").foregroundStyle(Theme.coral)
+            Image(systemName: "globe").foregroundStyle(Theme.accent)
             VStack(alignment: .leading, spacing: 2) {
                 Text("Stai parlando \(language.localizedName)?").font(.system(size: 13, weight: .semibold))
                 Text("Le ultime dettature sembrano in \(language.localizedName). Passa a questa lingua per un riconoscimento più preciso.")
@@ -245,7 +245,7 @@ struct LanguageBanner: View {
                 .buttonStyle(.primary)
         }
         .padding(12)
-        .background(Theme.coral.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.coral.opacity(0.25)))
+        .background(Theme.accent.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.accent.opacity(0.25)))
     }
 }

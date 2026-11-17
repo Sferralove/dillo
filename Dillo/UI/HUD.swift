@@ -54,7 +54,7 @@ struct HUDView: View {
             if !preview.isEmpty {
                 RevealText(text: preview)
                     .font(.system(size: 13, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.92))
+                    .foregroundStyle(Theme.ink.opacity(0.92))
                     .lineLimit(2)
                     .truncationMode(.head)          // mostra la parte finale, quella che stai dicendo
                     .multilineTextAlignment(.center)
@@ -66,8 +66,8 @@ struct HUDView: View {
         .padding(.vertical, preview.isEmpty ? 0 : 10)
         .frame(minHeight: 40)
         .background(Theme.graphite.opacity(0.94), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(.white.opacity(0.10)))
-        .shadow(color: .black.opacity(0.35), radius: 10, y: 4)
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Theme.ink.opacity(0.10)))
+        .shadow(color: Color.black.opacity(0.25), radius: 10, y: 4)
         .animation(.spring(duration: 0.35), value: preview.isEmpty)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .padding(.bottom, 12)
@@ -80,17 +80,17 @@ struct HUDView: View {
     @ViewBuilder private var statusRow: some View {
         HStack(spacing: 10) {
             if let warning = controller.hudWarning {
-                Image(systemName: "exclamationmark.circle.fill").foregroundStyle(Theme.coral)
+                Image(systemName: "exclamationmark.circle.fill").foregroundStyle(Theme.accent)
                 Text(warning).font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.95))
+                    .foregroundStyle(Theme.ink.opacity(0.95))
                     .fixedSize(horizontal: false, vertical: true)
             } else if controller.state == .transcribing {
                 HUDRobin(level: 0, busy: true)
-                Text("Trascrivo…").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(.white.opacity(0.9))
+                Text("Trascrivo…").font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(Theme.ink.opacity(0.9))
             } else if controller.micSilent {
-                Image(systemName: "mic.slash.fill").foregroundStyle(Theme.coral)
+                Image(systemName: "mic.slash.fill").foregroundStyle(Theme.accent)
                 Text("Il microfono non sente nulla").font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(Theme.ink.opacity(0.9))
             } else {
                 HUDRobin(level: controller.level, busy: false)
                 HStack(spacing: 3) {

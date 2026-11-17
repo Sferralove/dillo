@@ -104,7 +104,7 @@ struct TranscriptRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(item.createdAt.formatted(date: .omitted, time: .shortened))
                     .font(.system(size: 12, weight: .medium).monospacedDigit())
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(Theme.ink.opacity(0.7))
                 HStack(spacing: 5) {
                     AppIcon(bundleID: item.appBundleID, size: 14)
                     Text(item.appName ?? "—").lineLimit(1)
@@ -117,14 +117,14 @@ struct TranscriptRow: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(attributed)
                     .font(.system(size: 14))
-                    .foregroundStyle(.white.opacity(0.92))
+                    .foregroundStyle(Theme.ink.opacity(0.92))
                     .lineSpacing(3)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 HStack(spacing: 12) {
                     meta("\(item.wordCount) parole")
                     meta(String(format: "%.1f s", item.duration))
-                    if item.corrections > 0 { meta(item.corrections == 1 ? "1 correzione" : "\(item.corrections) correzioni", color: Theme.coral.opacity(0.8)) }
+                    if item.corrections > 0 { meta(item.corrections == 1 ? "1 correzione" : "\(item.corrections) correzioni", color: Theme.accent.opacity(0.8)) }
                     meta(item.engine)
                 }
             }
@@ -138,7 +138,7 @@ struct TranscriptRow: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
-        .background(Color.white.opacity(hovering ? 0.025 : 0))
+        .background(Theme.ink.opacity(hovering ? 0.025 : 0))
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: 0.15), value: hovering)
@@ -155,7 +155,7 @@ struct TranscriptRow: View {
         guard !q.isEmpty else { return s }
         var start = s.startIndex
         while let r = s[start...].range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) {
-            s[r].backgroundColor = Theme.coral.opacity(0.35)
+            s[r].backgroundColor = Theme.accent.opacity(0.35)
             start = r.upperBound
         }
         return s
@@ -184,9 +184,9 @@ struct IconAction: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 12.5, weight: .medium))
-                .foregroundStyle(active ? Theme.coral : .white.opacity(hover ? 0.95 : 0.7))
+                .foregroundStyle(active ? Theme.accent : Theme.ink.opacity(hover ? 0.95 : 0.7))
                 .frame(width: 30, height: 30)
-                .background(Color.white.opacity(hover ? 0.08 : 0), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(Theme.ink.opacity(hover ? 0.08 : 0), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -199,9 +199,9 @@ struct EmptyState: View {
     let symbol: String, title: String, text: String
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: symbol).font(.system(size: 30, weight: .light)).foregroundStyle(Theme.coral)
+            Image(systemName: symbol).font(.system(size: 30, weight: .light)).foregroundStyle(Theme.accent)
                 .frame(width: 64, height: 64)
-                .background(Theme.coral.opacity(0.1), in: Circle())
+                .background(Theme.accent.opacity(0.1), in: Circle())
             Text(title).font(Typo.display(22))
             Text(text).font(.system(size: 13)).foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center).frame(maxWidth: 360)

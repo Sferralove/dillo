@@ -49,9 +49,9 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 10) {
                 ForEach(notes, id: \.1) { note in
                     Label {
-                        Text(note.1).font(.system(size: 12.5)).foregroundStyle(.white.opacity(0.75))
+                        Text(note.1).font(.system(size: 12.5)).foregroundStyle(Theme.ink.opacity(0.75))
                     } icon: {
-                        Image(systemName: note.0).foregroundStyle(Theme.coral)
+                        Image(systemName: note.0).foregroundStyle(Theme.accent)
                     }
                 }
             }
@@ -80,8 +80,8 @@ struct OnboardingView: View {
         }
         .frame(width: 640, height: 640)
         .background(Theme.surface)
-        .preferredColorScheme(.dark)
-        .tint(Theme.coral)
+        .preferredColorScheme(AppTheme.colorScheme)
+        .tint(Theme.accent)
         .animation(.snappy(duration: 0.3), value: step)
         .task {
             // Aggiorna lo stato dei permessi mentre l'utente li concede in Impostazioni di Sistema.
@@ -239,11 +239,11 @@ private struct StepIndicator: View {
             ForEach(OnboardingView.Step.allCases, id: \.self) { s in
                 VStack(spacing: 8) {
                     Circle()
-                        .fill(s.rawValue <= current.rawValue ? Theme.coral : Color.white.opacity(0.18))
+                        .fill(s.rawValue <= current.rawValue ? Theme.accent : Theme.ink.opacity(0.18))
                         .frame(width: s == current ? 10 : 8, height: s == current ? 10 : 8)
                     Text(s.label)
                         .font(.system(size: 12, weight: s == current ? .semibold : .regular))
-                        .foregroundStyle(s == current ? .white : Theme.textSecondary)
+                        .foregroundStyle(s == current ? Theme.ink : Theme.textSecondary)
                 }
                 .frame(width: 104)
             }
@@ -261,16 +261,16 @@ private struct PermissionHero: View {
     var body: some View {
         VStack(spacing: 16) {
             ZStack {
-                Circle().fill(Theme.coral.opacity(granted ? 0 : 0.12)).frame(width: 96, height: 96)
-                Circle().strokeBorder(Theme.coral.opacity(granted ? 0 : 0.3)).frame(width: 96, height: 96)
+                Circle().fill(Theme.accent.opacity(granted ? 0 : 0.12)).frame(width: 96, height: 96)
+                Circle().strokeBorder(Theme.accent.opacity(granted ? 0 : 0.3)).frame(width: 96, height: 96)
                 Image(systemName: granted ? "checkmark.circle.fill" : symbol)
                     .font(.system(size: granted ? 54 : 38, weight: .medium))
-                    .foregroundStyle(granted ? .green : Theme.coral)
+                    .foregroundStyle(granted ? .green : Theme.accent)
                     .contentTransition(.symbolEffect(.replace))
             }
             Text(granted ? grantedText : pendingText)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(granted ? .white : .white.opacity(0.8))
+                .foregroundStyle(granted ? Theme.ink : Theme.ink.opacity(0.8))
         }
         .animation(.snappy, value: granted)
     }

@@ -41,11 +41,15 @@ struct MainView: View {
                 IconRail(page: $page, expanded: sidebarExpanded && geometry.size.width >= 940,
                          canExpand: geometry.size.width >= 940, prefersExpanded: $sidebarExpanded)
                 ZStack {
-                    switch page {
-                    case .overview: OverviewPage()
-                    case .history: HistoryPage()
-                    case .dictionary: DictionaryPage()
+                    Group {
+                        switch page {
+                        case .overview: OverviewPage()
+                        case .history: HistoryPage()
+                        case .dictionary: DictionaryPage()
+                        }
                     }
+                    .id(page)
+                    .transition(.opacity.combined(with: .scale(scale: 0.99)))
                 }
                 // Su schermi grandi il contenuto resta a una larghezza di lettura comoda, centrato.
                 .frame(maxWidth: 1120)
@@ -72,6 +76,7 @@ struct MainView: View {
 
 struct IconRail: View {
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var page: Page
     var expanded: Bool
     var canExpand: Bool
@@ -81,12 +86,12 @@ struct IconRail: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 AppMark(size: 30)
-                if expanded { Text("Dillo").font(Typo.display(23)) }
+                if expanded { Text("Dillo").font(Typo.display(20)) }
             }
             .padding(.leading, 5).padding(.top, 50).padding(.bottom, 20)
 
             ForEach(Page.allCases) { p in
-                Button { page = p } label: {
+                Button { withAnimation(reduceMotion ? nil : .smooth(duration: 0.3)) { page = p } } label: {
                     railLabel(symbol: p.symbol, title: p.title, selected: page == p)
                 }
                 .buttonStyle(.plain)
@@ -126,14 +131,14 @@ private struct RailLabel: View {
             if expanded { Text(title).font(.system(size: 13, weight: selected ? .semibold : .regular)) }
             if expanded { Spacer(minLength: 0) }
         }
-        .foregroundStyle(selected ? Theme.coral : .white.opacity(hover ? 0.95 : 0.65))
+        .foregroundStyle(selected ? Theme.accent : Theme.ink.opacity(hover ? 0.95 : 0.6))
         .padding(.horizontal, expanded ? 12 : 10)
         .frame(height: 40)
         .frame(maxWidth: .infinity)
-        .background(selected ? Theme.coral.opacity(0.13) : Color.white.opacity(hover ? 0.05 : 0),
+        .background(selected ? Theme.accent.opacity(0.13) : Theme.ink.opacity(hover ? 0.05 : 0),
                     in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .strokeBorder(selected ? Theme.coral.opacity(0.18) : .clear))
+            .strokeBorder(selected ? Theme.accent.opacity(0.18) : .clear))
         .contentShape(Rectangle())
         .onHover { hover = $0 }
         .animation(reduceMotion ? nil : Theme.interaction, value: hover)
@@ -150,6 +155,7 @@ struct AppMark: View {
             .fill(LinearGradient(colors: [Color(red: 0.102, green: 0.106, blue: 0.114),
                                           Color(red: 0.055, green: 0.059, blue: 0.063)],
                                  startPoint: .top, endPoint: .bottom))
+            .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
             .overlay(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous).strokeBorder(Theme.stroke))
             .overlay(RobinView().frame(width: size * 0.78).offset(x: size * 0.05))
             .frame(width: size, height: size)
@@ -167,9 +173,9 @@ private struct SidebarToggle: View {
         Button(action: action) {
             Image(systemName: "sidebar.left")
                 .font(.system(size: 14, weight: .regular))
-                .foregroundStyle(.white.opacity(canExpand ? (hover ? 0.95 : 0.6) : 0.25))
+                .foregroundStyle(Theme.ink.opacity(canExpand ? (hover ? 0.95 : 0.6) : 0.25))
                 .frame(width: 30, height: 24)
-                .background(Color.white.opacity(hover && canExpand ? 0.08 : 0),
+                .background(Theme.ink.opacity(hover && canExpand ? 0.08 : 0),
                             in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .contentShape(Rectangle())
         }
