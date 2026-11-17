@@ -1,8 +1,9 @@
 <p align="center">
-  <img src="docs/icon.png" width="128" alt="Icona di Dillo: una «D» con le scie della voce e tre righe di testo su sfondo grafite">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img src="docs/logo.svg" width="360" alt="Dillo">
+  </picture>
 </p>
-
-<h1 align="center">Dillo</h1>
 
 <p align="center">
   <strong>Parla, e il testo appare dove stai scrivendo.</strong><br>
@@ -261,7 +262,7 @@ rilascio del tasto
 ### Marchio
 - Icona: `Branding/AppIcon-1024.png` (generata da `AppIcon.svg`; `AppIcon.af` è la vecchia sorgente Affinity). Per rigenerare le dimensioni: `zsh Branding/make_icon.sh`.
 - Logo: `Branding/Logo Only.svg` (marchio) e `Branding/Logo Full.svg` (marchio + scritta), disegnati in vettoriale da `LogoMark.swift`.
-- Palette: corallo `#FD6248`, grafite `#111214` / `#2E2D2E`, crema `#F4F1EA`. Titoli e numeri usano il serif di sistema (New York).
+- Palette: tema chiaro con carta calda `#F4F2EF` e accento verde petrolio `#2D5B5B`; tema scuro con grafite `#111214` e accento corallo `#FF6B5A` (`--theme light` / `--theme dark` per forzarlo). Titoli e numeri usano il sans di sistema (SF).
 
 ## Rilascio
 
